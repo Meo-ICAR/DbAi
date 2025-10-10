@@ -37,11 +37,11 @@
                     <option value="pie" {{ str_contains(strtolower($history->charttype), 'pie') ? 'selected' : '' }}>Pie Chart</option>
                     <option value="doughnut" {{ str_contains(strtolower($history->charttype), 'doughnut') ? 'selected' : '' }}>Doughnut Chart</option>
                 </select>
-                <a href="{{ route('history.display', $history) }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                <a href="{{ url("/history/{$history->id}/display") }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                     View Full Details
                 </a>
-                    <a href="{{ route('history.index') }}" class="text-blue-600 hover:text-blue-800 flex items-center">
-                    <i class="fas fa-arrow-left mr-2"></i> <- Back to History
+                <a href="{{ url('/history') }}" class="text-blue-600 hover:text-blue-800 flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to History
                 </a>
             </div>
         </div>

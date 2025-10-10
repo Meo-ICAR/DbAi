@@ -7,11 +7,11 @@
             <h1 class="text-2xl font-bold text-gray-800">{{ $history->message }}</h1>
             <div class="flex items-center space-x-4">
                 @if($history->charttype !== 'Table')
-                    <a href="{{ route('history.chart', $history) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                    <a href="{{ url("/history/{$history->id}/chart") }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
                         <i class="fas fa-chart-pie mr-2"></i> View Chart
                     </a>
                 @endif
-                <a href="{{ route('history.index') }}" class="text-blue-600 hover:text-blue-800 flex items-center">
+                <a href="{{ url('/history') }}" class="text-blue-600 hover:text-blue-800 flex items-center">
                     <i class="fas fa-arrow-left mr-2"></i> Back to History
                 </a>
             </div>
@@ -38,8 +38,25 @@
                     <thead class="bg-gray-50">
                         <tr>
                             @foreach(array_keys((array)$results[0]) as $column)
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    {{ $column }}
+                                @php
+                                    $isCurrentSort = request('sort') === $column;
+                                    $newDirection = $isCurrentSort && request('direction', 'asc') === 'asc' ? 'desc' : 'asc';
+                                    $sortIcon = '';
+                                    
+                                    if ($isCurrentSort) {
+                                        $sortIcon = request('direction', 'asc') === 'asc' 
+                                            ? '<i class="fas fa-sort-up ml-1"></i>' 
+                                            : '<i class="fas fa-sort-down ml-1"></i>';
+                                    } else {
+                                        $sortIcon = '<i class="fas fa-sort ml-1 text-gray-300"></i>';
+                                    }
+                                @endphp
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                    onclick="window.location.href='{{ request()->fullUrlWithQuery(['sort' => $column, 'direction' => $newDirection]) }}#results-table'">
+                                    <div class="flex items-center">
+                                        <span>{{ $column }}</span>
+                                        {!! $sortIcon !!}
+                                    </div>
                                 </th>
                             @endforeach
                         </tr>

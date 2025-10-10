@@ -14,7 +14,12 @@ Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.se
 Route::get('/chat/chart', [ChatController::class, 'showChart'])->name('chat.chart');
 
 // History Routes
-Route::resource('history', HistoryController::class)->except(['show']);
-Route::get('history/{history}', [HistoryController::class, 'show'])->name('history.show');
-Route::get('history/{history}/display', [HistoryController::class, 'display'])->name('history.display');
-Route::get('history/{history}/chart', [HistoryController::class, 'chart'])->name('history.chart');
+Route::prefix('history')->group(function () {
+    Route::resource('/', HistoryController::class)->except(['show']);
+    Route::get('{history}', [HistoryController::class, 'show'])->name('history.show');
+    Route::get('{history}/display', [HistoryController::class, 'display'])->name('history.display');
+    Route::get('{history}/chart', [HistoryController::class, 'chart'])->name('history.chart');
+});
+
+// Dashboard Route
+Route::get('/dashboard', [HistoryController::class, 'dashboard'])->name('dashboard');

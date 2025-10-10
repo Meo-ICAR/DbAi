@@ -125,11 +125,12 @@ class HistoryController extends Controller
     /**
      * Display and execute a history query.
      */
-    public function display(History $history)
+    public function display(History $history, Request $request)
     {
-        $results = null;
-        $chartData = null;
+        $results = [];
         $error = null;
+        $sortColumn = $request->input('sort');
+        $sortDirection = $request->input('direction', 'asc');
 
         try {
             // Execute the query - convert the raw SQL to a string
@@ -140,72 +141,42 @@ class HistoryController extends Controller
 
             \Log::info('Executing SQL:', ['sql' => $sql]);
 
-            // Execute the query and convert results to array
-            $rawResults = \DB::select($sql);
-            \Log::info('Raw query results:', ['count' => count($rawResults), 'first' => $rawResults[0] ?? null]);
-
-            $results = collect($rawResults)->map(function($item) {
+            // Execute the query and convert results to collection
+            $results = collect(\DB::select($sql))->map(function($item) {
                 return (array)$item;
-            })->toArray();
+            });
 
+            // Sort the results if a sort column is specified
+            if ($sortColumn && $results->isNotEmpty() && array_key_exists($sortColumn, $results->first())) {
+                $sortDirection = strtolower($sortDirection) === 'desc' ? 'desc' : 'asc';
+                
+                $results = $results->sortBy(function($item) use ($sortColumn) {
+                    $value = $item[$sortColumn] ?? null;
+                    // Convert to string for case-insensitive comparison
+                    return is_string($value) ? strtolower($value) : $value;
+                }, SORT_REGULAR, $sortDirection === 'desc');
+            }
+            
+            $results = $results->values()->all();
+            
             \Log::info('Processed results:', ['count' => count($results), 'first' => $results[0] ?? null]);
 
-            /*
-            // Prepare chart data if we have results
-            if (!empty($results)) {
-                $firstRow = $results[0];
-                $columns = array_keys($firstRow);
-                \Log::info('Available columns:', $columns);
-
-                if (count($columns) >= 2) {
-                    $labels = [];
-                    $data = [];
-
-                    foreach ($results as $row) {
-                        $value = $row[$columns[1]] ?? null;
-                        $label = $row[$columns[0]] ?? '';
-                        \Log::debug('Processing row:', [
-                            'label_value' => $label,
-                            'data_value' => $value,
-                            'is_numeric' => is_numeric($value)
-                        ]);
-
-                        if (is_numeric($value)) {
-                            $labels[] = (string)$label;
-                            $data[] = (float)$value;
-                        }
-                    }
-
-                    $chartData = [
-                        'labels' => $labels,
-                        'data' => $data,
-                        'type' => strtolower(explode(' ', $history->charttype)[0] ?? 'bar')
-                    ];
-
-                    \Log::info('Generated chart data:', [
-                        'labels_count' => count($labels),
-                        'data_count' => count($data),
-                        'chart_type' => $chartData['type']
-                    ]);
-                } else {
-                    \Log::warning('Not enough columns for chart', ['columns_count' => count($columns)]);
-                }
-            }
-*/
         } catch (\Exception $e) {
             $error = $e->getMessage();
-            \Log::error('Error in chart method:', ['error' => $error]);
+            \Log::error('Error in display method:', ['error' => $error]);
         }
 
-       return view('history.display', [
+        return view('history.display', [
             'results' => $results,
             'error' => $error,
-            'history' => $history
+            'history' => $history,
+            'sortColumn' => $sortColumn,
+            'sortDirection' => $sortDirection
         ]);
     }
 
     /**
-     * Display only the chart for a history item.
+     * Display a chart for the history query.
      */
     public function chart(History $history)
     {
@@ -219,6 +190,8 @@ class HistoryController extends Controller
                 $sql = $sql->getValue();
             }
 
+            \Log::info('Executing SQL for chart:', ['sql' => $sql]);
+
             // Execute the query and convert results to array
             $results = collect(\DB::select($sql))->map(function($item) {
                 return (array)$item;
@@ -228,7 +201,7 @@ class HistoryController extends Controller
             if (!empty($results)) {
                 $firstRow = $results[0];
                 $columns = array_keys($firstRow);
-
+                
                 if (count($columns) >= 2) {
                     $labels = [];
                     $data = [];
@@ -236,7 +209,7 @@ class HistoryController extends Controller
                     foreach ($results as $row) {
                         $value = $row[$columns[1]] ?? null;
                         $label = $row[$columns[0]] ?? '';
-
+                        
                         if (is_numeric($value)) {
                             $labels[] = (string)$label;
                             $data[] = (float)$value;
@@ -254,20 +227,96 @@ class HistoryController extends Controller
                 }
             }
 
+            if (!$chartData) {
+                throw new \Exception('Could not generate chart data. Please ensure your query returns at least 2 columns with numeric data in the second column.');
+            }
+
         } catch (\Exception $e) {
             $error = $e->getMessage();
             \Log::error('Error in chart method:', ['error' => $error]);
-        }
-
-        // If no chart data could be generated, show an error
-        if (!$chartData) {
-            $error = $error ?: 'Could not generate chart data. Please ensure your query returns at least 2 columns with numeric data in the second column.';
         }
 
         return view('history.chart', [
             'chartData' => $chartData,
             'error' => $error,
             'history' => $history
+        ]);
+    }
+
+    /**
+     * Display the dashboard with all charts that have dashboardorder > 0
+     */
+    public function dashboard()
+    {
+        // Get all history items with dashboardorder > 0, ordered by dashboardorder
+        $histories = History::where('dashboardorder', '>', 0)
+            ->orderBy('dashboardorder')
+            ->get();
+
+        $charts = [];
+        $errors = [];
+
+        foreach ($histories as $history) {
+            try {
+                // Execute the query - convert the raw SQL to a string
+                $sql = $history->sqlstatement;
+                if ($sql instanceof \Illuminate\Database\Query\Expression) {
+                    $sql = $sql->getValue();
+                }
+
+                // Execute the query and convert results to array
+                $results = collect(\DB::select($sql))->map(function($item) {
+                    return (array)$item;
+                })->toArray();
+
+                // Prepare chart data if we have results
+                if (!empty($results)) {
+                    $firstRow = $results[0];
+                    $columns = array_keys($firstRow);
+                    
+                    if (count($columns) >= 2) {
+                        $labels = [];
+                        $data = [];
+
+                        foreach ($results as $row) {
+                            $value = $row[$columns[1]] ?? null;
+                            $label = $row[$columns[0]] ?? '';
+                            
+                            if (is_numeric($value)) {
+                                $labels[] = (string)$label;
+                                $data[] = (float)$value;
+                            }
+                        }
+
+                        if (!empty($labels) && !empty($data)) {
+                            $charts[] = [
+                                'id' => 'chart-' . $history->id,
+                                'title' => $history->message,
+                                'type' => strtolower(explode(' ', $history->charttype)[0] ?? 'bar'),
+                                'labels' => $labels,
+                                'data' => $data,
+                                'history' => $history
+                            ];
+                            continue;
+                        }
+                    }
+                }
+                
+                $errors[] = "Could not generate chart for: " . $history->message;
+                
+            } catch (\Exception $e) {
+                $errors[] = "Error processing '{$history->message}': " . $e->getMessage();
+                \Log::error('Error in dashboard chart generation:', [
+                    'history_id' => $history->id,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+            }
+        }
+
+        return view('history.dashboard', [
+            'charts' => $charts,
+            'errors' => $errors
         ]);
     }
 

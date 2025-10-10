@@ -7,7 +7,7 @@
                 <h2 class="text-2xl font-semibold text-gray-800">Query History</h2>
                 <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
                     <!-- Search Form -->
-                    <form method="GET" action="{{ route('history.index') }}" class="flex-1">
+                    <form method="GET" action="{{ url('/history') }}" class="flex-1">
                         <div class="relative rounded-md shadow-sm">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fas fa-search text-gray-400"></i>
@@ -17,7 +17,7 @@
                                    placeholder="Search queries..." 
                                    value="{{ request('search') }}">
                             @if(request('search'))
-                                <a href="{{ route('history.index') }}" 
+                                <a href="{{ url('/history') }}" 
                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
                                     <i class="fas fa-times"></i>
                                 </a>
@@ -25,7 +25,7 @@
                         </div>
                     </form>
                     
-                    <a href="{{ route('history.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md whitespace-nowrap">
+                    <a href="{{ url('/history/create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md whitespace-nowrap">
                         <i class="fas fa-plus mr-2"></i>New Query
                     </a>
                 </div>
@@ -36,7 +36,7 @@
                     <i class="fas fa-history text-4xl mb-4"></i>
                     <p>No query history found.</p>
                     @if(request()->has('search'))
-                        <a href="{{ route('history.index') }}" class="text-blue-600 hover:text-blue-800 mt-2 inline-block">
+                        <a href="{{ url('/history') }}" class="text-blue-600 hover:text-blue-800 mt-2 inline-block">
                             Clear search
                         </a>
                     @endif
@@ -113,22 +113,22 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <a href="{{ route('history.display', $history->id) }}" 
+                                        <a href="{{ url("/history/{$history->id}/display") }}" 
                                            class="text-green-600 hover:text-green-900 mr-3"
                                            title="Execute query">
                                             <i class="fas fa-play"></i>
                                         </a>
-                                        <a href="{{ route('history.show', $history->id) }}" 
+                                        <a href="{{ url("/history/{$history->id}") }}" 
                                            class="text-blue-600 hover:text-blue-900 mr-3"
                                            title="View details">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('history.edit', $history->id) }}" 
+                                        <a href="{{ url("/history/{$history->id}/edit") }}" 
                                            class="text-indigo-600 hover:text-indigo-900 mr-3"
                                            title="Edit query">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form action="{{ route('history.destroy', $history->id) }}" 
+                                        <form action="{{ url("/history/{$history->id}") }}" 
                                               method="POST" 
                                               class="inline delete-form"
                                               onsubmit="return confirm('Are you sure you want to delete this query?');">

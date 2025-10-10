@@ -14,8 +14,9 @@
             <div class="container mx-auto px-4 py-3">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center space-x-4">
-                        <a href="{{ route('chat') }}" class="text-xl font-bold">Database Assistant</a>
-                        <a href="{{ route('history.index') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Query History</a>
+                        <a href="{{ url('/chat') }}" class="text-xl font-bold">Database Assistant</a>
+                        <a href="{{ url('/history') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Query History</a>
+                        <a href="{{ url('/dashboard') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Dashboard</a>
                     </div>
                 </div>
             </div>
