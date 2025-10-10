@@ -28,10 +28,25 @@ class ChatController extends Controller
 
         try {
             $response = $this->agent->chat(new UserMessage($request->message));
-            
+
             // Get the last executed query for debugging/display
             $lastQuery = DataAnalystAgent::getLastQuery();
-            
+
+            // Get the query results if available
+            $results = [];
+            if ($lastQuery) {
+                try {
+                    // Execute the query to get results
+                    $pdo = \DB::connection()->getPdo();
+                    $stmt = $pdo->prepare($lastQuery['query']);
+                    $stmt->execute($lastQuery['params'] ?? []);
+                    $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                } catch (\Exception $e) {
+                    // If there's an error executing the query, just return empty results
+                    $results = [];
+                }
+            }
+
             return response()->json([
                 'status' => 'success',
                 'response' => $response->getContent(),
@@ -39,9 +54,10 @@ class ChatController extends Controller
                     'sql' => $lastQuery['query'],
                     'params' => $lastQuery['params'] ?? [],
                     'timestamp' => $lastQuery['timestamp']
-                ] : null
+                ] : null,
+                'results' => $results
             ]);
-            
+
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',

@@ -41,6 +41,19 @@
             </div>
         </div>
         
+        <!-- Query Results Section -->
+        <div class="mt-6 bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="bg-green-100 p-3">
+                <h2 class="text-sm font-semibold text-gray-700">Query Results</h2>
+            </div>
+            <div class="p-4 bg-white">
+                <div id="query-results" class="overflow-x-auto">
+                    <!-- Results will be displayed here -->
+                    <p class="text-gray-500 text-sm text-center py-4">Your query results will appear here</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Query Debug Section (collapsible) -->
         <div class="mt-6 bg-white rounded-lg shadow-lg overflow-hidden">
             <div class="bg-gray-100 p-3 cursor-pointer" onclick="toggleDebug()">
@@ -95,6 +108,77 @@
             messageDiv.appendChild(bubble);
             chatMessages.appendChild(messageDiv);
             scrollToBottom();
+        }
+        
+        // Display query results in a table
+        function displayQueryResults(data) {
+            const resultsContainer = document.getElementById('query-results');
+            
+            // Clear previous results
+            resultsContainer.innerHTML = '';
+            
+            if (!data || !Array.isArray(data) || data.length === 0) {
+                resultsContainer.innerHTML = '<p class="text-gray-500 text-sm text-center py-4">No data to display</p>';
+                return;
+            }
+            
+            // Create table
+            const table = document.createElement('table');
+            table.className = 'min-w-full divide-y divide-gray-200';
+            
+            // Create table header
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            
+            // Get headers from first row
+            const headers = Object.keys(data[0]);
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.className = 'px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+            
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+            
+            // Create table body
+            const tbody = document.createElement('tbody');
+            tbody.className = 'bg-white divide-y divide-gray-200';
+            
+            // Add rows
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                
+                headers.forEach(header => {
+                    const td = document.createElement('td');
+                    td.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-500';
+                    
+                    // Handle different data types
+                    const value = row[header];
+                    if (value === null || value === undefined) {
+                        td.textContent = 'NULL';
+                        td.className += ' text-gray-400';
+                    } else if (typeof value === 'object') {
+                        td.textContent = JSON.stringify(value);
+                    } else {
+                        td.textContent = value;
+                    }
+                    
+                    tr.appendChild(td);
+                });
+                
+                tbody.appendChild(tr);
+            });
+            
+            table.appendChild(tbody);
+            resultsContainer.appendChild(table);
+            
+            // Add result count
+            const resultCount = document.createElement('div');
+            resultCount.className = 'text-xs text-gray-500 mt-2';
+            resultCount.textContent = `${data.length} row${data.length !== 1 ? 's' : ''} returned`;
+            resultsContainer.appendChild(resultCount);
         }
         
         // Add query to debug section
@@ -173,6 +257,11 @@
                     // Add query to debug section if available
                     if (data.query) {
                         addQueryDebug(data.query);
+                    }
+                    
+                    // Display query results if available
+                    if (data.results) {
+                        displayQueryResults(data.results);
                     }
                 } else {
                     addMessage('assistant', 'Sorry, there was an error processing your request.');
