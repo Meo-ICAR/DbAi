@@ -12,12 +12,12 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fas fa-search text-gray-400"></i>
                             </div>
-                            <input type="text" name="search" id="search" 
-                                   class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-12 sm:text-sm border-gray-300 rounded-md" 
-                                   placeholder="{{ __('Cerca query...') }}" 
+                            <input type="text" name="search" id="search"
+                                   class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-12 sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="{{ __('Cerca query...') }}"
                                    value="{{ request('search') }}">
                             @if(request('search'))
-                                <a href="{{ url('/history') }}" 
+                                <a href="{{ url('/history') }}"
                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
                                    title="{{ __('Cancella ricerca') }}">
                                     <i class="fas fa-times"></i>
@@ -25,7 +25,7 @@
                             @endif
                         </div>
                     </form>
-                    
+
                     <a href="{{ url('/history/create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md whitespace-nowrap">
                         <i class="fas fa-plus mr-2"></i>{{ __('Nuova Query') }}
                     </a>
@@ -103,7 +103,7 @@
                                             </div>
                                         </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
                                             {{ $history->charttype === 'Table' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800' }}">
                                             {{ $history->charttype }}
                                         </span>
@@ -114,28 +114,36 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <a href="{{ url("/history/{$history->id}/display") }}" 
+                                        <a href="{{ url("/history/{$history->id}/display") }}"
                                            class="text-green-600 hover:text-green-900 mr-3"
                                            title="Execute query">
                                             <i class="fas fa-play"></i>
                                         </a>
-                                        <a href="{{ url("/history/{$history->id}") }}" 
+                                        <a href="{{ url("/history/{$history->id}") }}"
                                            class="text-blue-600 hover:text-blue-900 mr-3"
                                            title="View details">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ url("/history/{$history->id}/edit") }}" 
+                                        <a href="{{ url("/history/{$history->id}/edit") }}"
                                            class="text-indigo-600 hover:text-indigo-900 mr-3"
                                            title="Edit query">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form action="{{ url("/history/{$history->id}") }}" 
-                                              method="POST" 
+                                        <form action="{{ route('history.clone', $history) }}" method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit"
+                                                    class="text-blue-600 hover:text-blue-900"
+                                                    title="Clone">
+                                                <i class="far fa-copy"></i>
+                                            </button>
+                                        </form>
+                                        <form action="{{ url("/history/{$history->id}") }}"
+                                              method="POST"
                                               class="inline delete-form"
                                               onsubmit="return confirm('Are you sure you want to delete this query?');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" 
+                                            <button type="submit"
                                                     class="text-red-600 hover:text-red-900"
                                                     title="Delete query">
                                                 <i class="fas fa-trash"></i>

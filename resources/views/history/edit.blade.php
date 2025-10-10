@@ -13,7 +13,7 @@
             <form action="{{ route('history.update', $history->id) }}" method="POST">
                 @csrf
                 @method('PUT')
-                
+
                 <div class="mb-6">
                     <label for="message" class="block text-sm font-medium text-gray-700 mb-1">
                         Message
@@ -26,20 +26,19 @@
                     @enderror
                 </div>
 
-                <div class="mb-6">
-                    <label for="dashboardorder" class="block text-sm font-medium text-gray-700 mb-1">
-                        Dashboard Order
-                    </label>
-                    <input type="number" name="dashboardorder" id="dashboardorder" 
-                           value="{{ old('dashboardorder', $history->dashboardorder ?? 0) }}"
-                           class="mt-1 block w-32 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                    @error('dashboardorder')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                    <p class="mt-1 text-xs text-gray-500">
-                        Lower numbers appear first on the dashboard.
-                    </p>
-                </div>
+                   <!-- Add this new field for dashboard order -->
+                   <div class="mb-4">
+                <label for="dashboardorder" class="block text-sm font-medium text-gray-700">Dashboard Order</label>
+                <input type="number" name="dashboardorder" id="dashboardorder"
+                       value="{{ old('dashboardorder', $history->dashboardorder) }}"
+                       min="0" step="10"
+                       class="mt-1 block w-32 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                       placeholder="0 = not on dashboard">
+                <p class="mt-1 text-xs text-gray-500">Set to 0 to hide from dashboard, or set priority (1 = highest)</p>
+                @error('dashboardorder')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
 
                 <div class="mb-6">
                     <label for="sqlstatement" class="block text-sm font-medium text-gray-700 mb-1">
@@ -105,10 +104,10 @@
                         e.preventDefault();
                         const start = this.selectionStart;
                         const end = this.selectionEnd;
-                        
+
                         // Set textarea value to: text before caret + tab + text after caret
                         this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
-                        
+
                         // Put caret at right position again
                         this.selectionStart = this.selectionEnd = start + 4;
                     }

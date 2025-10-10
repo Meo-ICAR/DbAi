@@ -103,19 +103,23 @@ class HistoryController extends Controller
             'message' => 'required|string|max:1000',
             'sqlstatement' => 'required|string',
             'charttype' => 'nullable|string|max:50',
+            'dashboardorder' => 'nullable|integer',
         ]);
 
-        $history->update([
+        $updateData = [
             'message' => $validated['message'],
             'sqlstatement' => $validated['sqlstatement'],
             'charttype' => $validated['charttype'] ?? 'Pie Chart',
-            'dashboardorder' => $validated['dashboardorder'] ?? 0,
             'submission_date' => now(),
-        ]);
-
-        return redirect()->route('history.index')
-            ->with('success', 'History entry updated successfully.');
-    }
+        ];
+        // Only update dashboardorder if it's present in the request
+        if (array_key_exists('dashboardorder', $validated)) {
+            $history->dashboardorder = $validated['dashboardorder'];
+        }
+        $history->update($updateData);
+                return redirect()->route('history.index')
+                    ->with('success', 'History entry updated successfully.');
+            }
 
     /**
      */
@@ -207,6 +211,19 @@ class HistoryController extends Controller
             \Log::error('Export error:', ['error' => $e->getMessage()]);
             return back()->with('error', 'Error generating Excel file: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Clone a history entry.
+     */
+    public function clone(History $history)
+    {
+        $clonedHistory = $history->replicate();
+        $clonedHistory->save();
+        $clonedHistory->message =  $history->message.' clone '.$history->id;
+        $clonedHistory->save();
+        return redirect()->route('history.index')
+            ->with('success', 'History entry cloned successfully.');
     }
 
     /**
