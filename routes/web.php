@@ -23,6 +23,7 @@ Route::prefix('history')->name('history.')->group(function () {
     Route::delete('/{history}', [HistoryController::class, 'destroy'])->name('destroy');
     Route::get('/{history}', [HistoryController::class, 'show'])->name('show');
     Route::get('/{history}/display', [HistoryController::class, 'display'])->name('display');
+
     Route::get('/{history}/chart', [HistoryController::class, 'chart'])->name('chart');
 });
 

@@ -7,11 +7,29 @@
             <h1 class="text-2xl font-bold text-gray-800">{{ $history->message }}</h1>
             <div class="flex items-center space-x-4">
                 @if($history->charttype !== 'Table')
-                    <a href="{{ url("/history/{$history->id}/chart") }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                    <a href="{{ url("/history/{$history->id}/chart") }}"
+                       class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
                         <i class="fas fa-chart-pie mr-2"></i> View Chart
                     </a>
                 @endif
-                <a href="{{ url('/history') }}" class="text-blue-600 hover:text-blue-800 flex items-center">
+
+                <!-- Add this form for Excel export -->
+                <form action="{{ route('history.display', $history) }}" method="GET" class="inline">
+                    @if(request('sort'))
+                        <input type="hidden" name="sort" value="{{ request('sort') }}">
+                    @endif
+                    @if(request('direction'))
+                        <input type="hidden" name="direction" value="{{ request('direction') }}">
+                    @endif
+                    <input type="hidden" name="export" value="1">
+                    <button type="submit"
+                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                        <i class="fas fa-file-excel mr-2"></i> Export to Excel
+                    </button>
+                </form>
+
+                <a href="{{ url('/history') }}"
+                   class="text-blue-600 hover:text-blue-800 flex items-center">
                     <i class="fas fa-arrow-left mr-2"></i> Back to History
                 </a>
             </div>
@@ -39,20 +57,18 @@
                         <tr>
                             @foreach(array_keys((array)$results[0]) as $column)
                                 @php
-                                    $isCurrentSort = request('sort') === $column;
-                                    $newDirection = $isCurrentSort && request('direction', 'asc') === 'asc' ? 'desc' : 'asc';
+                                    $isSorted = $sortColumn === $column;
                                     $sortIcon = '';
-                                    
-                                    if ($isCurrentSort) {
-                                        $sortIcon = request('direction', 'asc') === 'asc' 
-                                            ? '<i class="fas fa-sort-up ml-1"></i>' 
+                                    if ($isSorted) {
+                                        $sortIcon = $sortDirection === 'asc'
+                                            ? '<i class="fas fa-sort-up ml-1"></i>'
                                             : '<i class="fas fa-sort-down ml-1"></i>';
                                     } else {
                                         $sortIcon = '<i class="fas fa-sort ml-1 text-gray-300"></i>';
                                     }
                                 @endphp
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                                    onclick="window.location.href='{{ request()->fullUrlWithQuery(['sort' => $column, 'direction' => $newDirection]) }}#results-table'">
+                                    onclick="window.location.href='{{ request()->fullUrlWithQuery(['sort' => $column, 'direction' => $isSorted && $sortDirection === 'asc' ? 'desc' : 'asc']) }}#results-table'">
                                     <div class="flex items-center">
                                         <span>{{ $column }}</span>
                                         {!! $sortIcon !!}
@@ -61,10 +77,10 @@
                             @endforeach
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="bg-white divide-y divide-gray-200" id="results-table">
                         @foreach($results as $row)
                             <tr>
-                                @foreach((array)$row as $value)
+                                @foreach($row as $value)
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $value }}
                                     </td>
@@ -75,9 +91,8 @@
                 </table>
             </div>
         @else
-            <div class="text-center py-12 text-gray-500">
-                <i class="fas fa-database text-4xl mb-4"></i>
-                <p>No results found for this query.</p>
+            <div class="text-center py-12">
+                <p class="text-gray-500">No results found.</p>
             </div>
         @endif
     </div>

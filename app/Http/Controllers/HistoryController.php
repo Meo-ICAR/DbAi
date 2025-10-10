@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\HistoryExport;
 use App\Models\History;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class HistoryController extends Controller
 {
@@ -128,13 +131,18 @@ class HistoryController extends Controller
      */
     public function display(History $history, Request $request)
     {
+        // Check for export request first
+        if ($request->has('export')) {
+            return $this->exportToExcel($history, $request);
+        }
+
         $results = [];
         $error = null;
         $sortColumn = $request->input('sort');
         $sortDirection = $request->input('direction', 'asc');
 
         try {
-            // Execute the query - convert the raw SQL to a string
+            // Execute the query
             $sql = $history->sqlstatement;
             if ($sql instanceof \Illuminate\Database\Query\Expression) {
                 $sql = $sql->getValue();
@@ -142,25 +150,17 @@ class HistoryController extends Controller
 
             \Log::info('Executing SQL:', ['sql' => $sql]);
 
-            // Execute the query and convert results to collection
-            $results = collect(\DB::select($sql))->map(function($item) {
-                return (array)$item;
-            });
+            // Get and process results
+            $results = collect(DB::select($sql))->map(fn($item) => (array)$item);
 
-            // Sort the results if a sort column is specified
+            // Apply sorting if needed
             if ($sortColumn && $results->isNotEmpty() && array_key_exists($sortColumn, $results->first())) {
                 $sortDirection = strtolower($sortDirection) === 'desc' ? 'desc' : 'asc';
-
-                $results = $results->sortBy(function($item) use ($sortColumn) {
-                    $value = $item[$sortColumn] ?? null;
-                    // Convert to string for case-insensitive comparison
-                    return is_string($value) ? strtolower($value) : $value;
-                }, SORT_REGULAR, $sortDirection === 'desc');
+                $results = $sortDirection === 'asc'
+                    ? $results->sortBy($sortColumn, SORT_REGULAR)
+                    : $results->sortByDesc($sortColumn, SORT_REGULAR);
+                $results = $results->values();
             }
-
-            $results = $results->values()->all();
-
-            \Log::info('Processed results:', ['count' => count($results), 'first' => $results[0] ?? null]);
 
         } catch (\Exception $e) {
             $error = $e->getMessage();
@@ -174,6 +174,39 @@ class HistoryController extends Controller
             'sortColumn' => $sortColumn,
             'sortDirection' => $sortDirection
         ]);
+    }
+
+    private function exportToExcel($history, $request)
+    {
+        try {
+            // Execute the query
+            $sql = $history->sqlstatement;
+            if ($sql instanceof \Illuminate\Database\Query\Expression) {
+                $sql = $sql->getValue();
+            }
+
+            // Get and process results
+            $results = collect(DB::select($sql))->map(fn($item) => (array)$item);
+
+            // Apply sorting if needed
+            if ($sortColumn = $request->input('sort')) {
+                $sortDirection = strtolower($request->input('direction', 'asc')) === 'desc' ? 'desc' : 'asc';
+                $results = $sortDirection === 'asc'
+                    ? $results->sortBy($sortColumn, SORT_REGULAR)
+                    : $results->sortByDesc($sortColumn, SORT_REGULAR);
+                $results = $results->values();
+            }
+
+            // Prepare export
+            $headings = $results->isNotEmpty() ? array_keys($results->first()) : [];
+            $filename = 'export_' . \Illuminate\Support\Str::slug($history->message, '_') . '_' . now()->format('Y-m-d_His') . '.xlsx';
+
+            return Excel::download(new HistoryExport($results, $headings), $filename);
+
+        } catch (\Exception $e) {
+            \Log::error('Export error:', ['error' => $e->getMessage()]);
+            return back()->with('error', 'Error generating Excel file: ' . $e->getMessage());
+        }
     }
 
     /**
