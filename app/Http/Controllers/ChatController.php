@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Neuron\Agents\DataAnalystAgent;
+use App\Models\History;
+use App\Http\Controllers\HistoryController;
 use Illuminate\Http\Request;
 use NeuronAI\Chat\Messages\UserMessage;
 
@@ -34,35 +36,103 @@ class ChatController extends Controller
 
             // Get the query results if available
             $results = [];
+            $isGroupByQuery = false;
+            
             if ($lastQuery) {
                 try {
+                    // Check if this is a GROUP BY query
+                    $isGroupByQuery = stripos($lastQuery['query'], 'GROUP BY') !== false;
+                    
                     // Execute the query to get results
                     $pdo = \DB::connection()->getPdo();
                     $stmt = $pdo->prepare($lastQuery['query']);
                     $stmt->execute($lastQuery['params'] ?? []);
                     $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+                    // Log the query to history
+                    if (!empty($results)) {
+                        HistoryController::logQuery(
+                            $request->message,
+                            $lastQuery['query'],
+                            $isGroupByQuery ? 'Pie Chart' : 'Table'
+                        );
+                    }
                 } catch (\Exception $e) {
                     // If there's an error executing the query, just return empty results
                     $results = [];
                 }
             }
 
-            return response()->json([
+            $responseData = [
                 'status' => 'success',
                 'response' => $response->getContent(),
+                'is_group_by' => $isGroupByQuery,
                 'query' => $lastQuery ? [
                     'sql' => $lastQuery['query'],
                     'params' => $lastQuery['params'] ?? [],
                     'timestamp' => $lastQuery['timestamp']
                 ] : null,
                 'results' => $results
+            ];
+
+            // If it's an AJAX request, return JSON
+            if ($request->ajax()) {
+                return response()->json($responseData);
+            }
+            
+            // If it's a GROUP BY query and not an AJAX request, redirect to chart view
+            if ($isGroupByQuery && !empty($results)) {
+                return redirect()->route('chat.chart', [
+                    'query' => base64_encode($lastQuery['query']),
+                    'params' => base64_encode(json_encode($lastQuery['params'] ?? []))
+                ]);
+            }
+            
+            // Otherwise, return the regular chat view
+            return view('chat.index', [
+                'response' => $response->getContent(),
+                'query' => $lastQuery,
+                'results' => $results
             ]);
 
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+            if ($request->ajax()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ], 500);
+            }
+            
+            return back()->with('error', $e->getMessage());
+        }
+    }
+    
+    /**
+     * Show the chart view for a GROUP BY query
+     */
+    public function showChart(Request $request)
+    {
+        try {
+            $query = base64_decode($request->query('query'));
+            $params = json_decode(base64_decode($request->query('params')), true) ?? [];
+            
+            if (empty($query)) {
+                throw new \Exception('No query provided');
+            }
+            
+            // Execute the query to get results
+            $pdo = \DB::connection()->getPdo();
+            $stmt = $pdo->prepare($query);
+            $stmt->execute($params);
+            $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            return view('chat.chart', [
+                'chartData' => $results,
+                'query' => $query
+            ]);
+            
+        } catch (\Exception $e) {
+            return back()->with('error', 'Could not generate chart: ' . $e->getMessage());
         }
     }
 }

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Database Chat Interface</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -235,13 +236,19 @@
             scrollToBottom();
             
             try {
+                // Get CSRF token from meta tag
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                
                 // Send message to server
                 const response = await fetch('{{ route('chat.send') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
                     },
+                    credentials: 'same-origin',
                     body: JSON.stringify({ message })
                 });
                 
@@ -251,6 +258,14 @@
                 document.getElementById('typing-indicator')?.remove();
                 
                 if (data.status === 'success') {
+                    // If it's a GROUP BY query, redirect to the chart view
+                    if (data.is_group_by && data.query) {
+                        const query = encodeURIComponent(btoa(data.query.sql));
+                        const params = encodeURIComponent(btoa(JSON.stringify(data.query.params || [])));
+                        window.location.href = `{{ route('chat.chart') }}?query=${query}&params=${params}`;
+                        return;
+                    }
+                    
                     // Add assistant's response to chat
                     addMessage('assistant', data.response);
                     
