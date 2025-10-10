@@ -9,31 +9,45 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-blue-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <a href="{{ url('/') }}" class="text-xl font-bold">Database Assistant</a>
+                    <a href="{{ url('/chat') }}" class="bg-blue-700 px-3 py-2 rounded">Chat</a>
+                    <a href="{{ url('/history') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Query</a>
+                    <a href="{{ url('/dashboard') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
     <div class="container mx-auto max-w-4xl p-4">
         <div class="bg-white rounded-lg shadow-lg overflow-hidden">
             <!-- Header -->
             <div class="bg-blue-600 text-white p-4">
                 <h1 class="text-xl font-bold">Database Chat Assistant</h1>
-                <p class="text-sm opacity-75">Ask questions about your database</p>
+                <p class="text-sm opacity-75">Interroga il database con AI</p>
             </div>
-            
+
             <!-- Chat Messages -->
             <div id="chat-messages" class="h-96 overflow-y-auto p-4 space-y-4">
                 <!-- Messages will be added here -->
             </div>
-            
+
             <!-- Input Area -->
             <div class="border-t p-4 bg-gray-50">
                 <form id="chat-form" class="flex space-x-2">
-                    <input 
-                        type="text" 
-                        id="user-input" 
-                        placeholder="Type your question about the database..." 
+                    <input
+                        type="text"
+                        id="user-input"
+                        placeholder="Digita la tua domanda..."
                         class="flex-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                         autocomplete="off"
                     >
-                    <button 
-                        type="submit" 
+                    <button
+                        type="submit"
                         class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                         Send
@@ -41,7 +55,7 @@
                 </form>
             </div>
         </div>
-        
+
         <!-- Query Results Section -->
         <div class="mt-6 bg-white rounded-lg shadow-lg overflow-hidden">
             <div class="bg-green-100 p-3">
@@ -76,61 +90,61 @@
         const userInput = document.getElementById('user-input');
         const chatMessages = document.getElementById('chat-messages');
         const queryDebug = document.getElementById('query-debug');
-        
+
         // Scroll to bottom of chat
         function scrollToBottom() {
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-        
+
         // Toggle debug section
         function toggleDebug() {
             const debugContent = document.getElementById('debug-content');
             const arrow = document.getElementById('debug-arrow');
-            
+
             debugContent.classList.toggle('hidden');
             arrow.classList.toggle('fa-chevron-down');
             arrow.classList.toggle('fa-chevron-up');
         }
-        
+
         // Add message to chat
         function addMessage(role, content) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
-            
+
             const bubble = document.createElement('div');
-            bubble.className = `max-w-3/4 p-3 rounded-lg ${role === 'user' 
-                ? 'bg-blue-600 text-white rounded-br-none' 
+            bubble.className = `max-w-3/4 p-3 rounded-lg ${role === 'user'
+                ? 'bg-blue-600 text-white rounded-br-none'
                 : 'bg-gray-200 text-gray-800 rounded-bl-none'}`;
-                
+
             // Format content with line breaks
             const formattedContent = content.replace(/\n/g, '<br>');
             bubble.innerHTML = formattedContent;
-            
+
             messageDiv.appendChild(bubble);
             chatMessages.appendChild(messageDiv);
             scrollToBottom();
         }
-        
+
         // Display query results in a table
         function displayQueryResults(data) {
             const resultsContainer = document.getElementById('query-results');
-            
+
             // Clear previous results
             resultsContainer.innerHTML = '';
-            
+
             if (!data || !Array.isArray(data) || data.length === 0) {
                 resultsContainer.innerHTML = '<p class="text-gray-500 text-sm text-center py-4">No data to display</p>';
                 return;
             }
-            
+
             // Create table
             const table = document.createElement('table');
             table.className = 'min-w-full divide-y divide-gray-200';
-            
+
             // Create table header
             const thead = document.createElement('thead');
             const headerRow = document.createElement('tr');
-            
+
             // Get headers from first row
             const headers = Object.keys(data[0]);
             headers.forEach(header => {
@@ -139,22 +153,22 @@
                 th.textContent = header;
                 headerRow.appendChild(th);
             });
-            
+
             thead.appendChild(headerRow);
             table.appendChild(thead);
-            
+
             // Create table body
             const tbody = document.createElement('tbody');
             tbody.className = 'bg-white divide-y divide-gray-200';
-            
+
             // Add rows
             data.forEach(row => {
                 const tr = document.createElement('tr');
-                
+
                 headers.forEach(header => {
                     const td = document.createElement('td');
                     td.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-500';
-                    
+
                     // Handle different data types
                     const value = row[header];
                     if (value === null || value === undefined) {
@@ -165,60 +179,60 @@
                     } else {
                         td.textContent = value;
                     }
-                    
+
                     tr.appendChild(td);
                 });
-                
+
                 tbody.appendChild(tr);
             });
-            
+
             table.appendChild(tbody);
             resultsContainer.appendChild(table);
-            
+
             // Add result count
             const resultCount = document.createElement('div');
             resultCount.className = 'text-xs text-gray-500 mt-2';
             resultCount.textContent = `${data.length} row${data.length !== 1 ? 's' : ''} returned`;
             resultsContainer.appendChild(resultCount);
         }
-        
+
         // Add query to debug section
         function addQueryDebug(queryData) {
             if (!queryData) return;
-            
+
             const queryDiv = document.createElement('div');
             queryDiv.className = 'mb-4 p-3 bg-white rounded border border-gray-200';
-            
+
             const timestamp = document.createElement('div');
             timestamp.className = 'text-xs text-gray-500 mb-1';
             timestamp.textContent = `Executed at: ${queryData.timestamp}`;
-            
+
             const sql = document.createElement('div');
             sql.className = 'p-2 bg-gray-100 rounded font-mono text-sm mb-2 overflow-x-auto';
             sql.textContent = queryData.sql;
-            
+
             const params = document.createElement('div');
             params.className = 'text-xs text-gray-600';
             params.textContent = `Parameters: ${JSON.stringify(queryData.params)}`;
-            
+
             queryDiv.appendChild(timestamp);
             queryDiv.appendChild(sql);
             queryDiv.appendChild(params);
-            
+
             queryDebug.prepend(queryDiv);
         }
-        
+
         // Handle form submission
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const message = userInput.value.trim();
             if (!message) return;
-            
+
             // Add user message to chat
             addMessage('user', message);
             userInput.value = '';
-            
+
             // Show typing indicator
             const typingIndicator = document.createElement('div');
             typingIndicator.id = 'typing-indicator';
@@ -234,11 +248,11 @@
             `;
             chatMessages.appendChild(typingIndicator);
             scrollToBottom();
-            
+
             try {
                 // Get CSRF token from meta tag
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                
+
                 // Send message to server
                 const response = await fetch('{{ route('chat.send') }}', {
                     method: 'POST',
@@ -251,12 +265,12 @@
                     credentials: 'same-origin',
                     body: JSON.stringify({ message })
                 });
-                
+
                 const data = await response.json();
-                
+
                 // Remove typing indicator
                 document.getElementById('typing-indicator')?.remove();
-                
+
                 if (data.status === 'success') {
                     // If it's a GROUP BY query, redirect to the chart view
                     if (data.is_group_by && data.query) {
@@ -265,30 +279,30 @@
                         window.location.href = `{{ route('chat.chart') }}?query=${query}&params=${params}`;
                         return;
                     }
-                    
+
                     // Add assistant's response to chat
                     addMessage('assistant', data.response);
-                    
+
                     // Add query to debug section if available
                     if (data.query) {
                         addQueryDebug(data.query);
                     }
-                    
+
                     // Display query results if available
                     if (data.results) {
                         displayQueryResults(data.results);
                     }
                 } else {
-                    addMessage('assistant', 'Sorry, there was an error processing your request.');
+                    addMessage('assistant', 'Spiacente, c\u00f9 avvenuto un errore.');
                     console.error('Error:', data.message);
                 }
             } catch (error) {
                 document.getElementById('typing-indicator')?.remove();
-                addMessage('assistant', 'Sorry, there was an error connecting to the server.');
+                addMessage('assistant', 'Spiacente non riesco a collegarmi al database');
                 console.error('Error:', error);
             }
         });
-        
+
         // Allow sending message with Enter key (but allow Shift+Enter for new line)
         userInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -296,10 +310,10 @@
                 chatForm.dispatchEvent(new Event('submit'));
             }
         });
-        
+
         // Initial welcome message
         document.addEventListener('DOMContentLoaded', () => {
-            addMessage('assistant', 'Hello! I\'m your database assistant. Ask me anything about your database.');
+            addMessage('assistant', 'Ciao! Sono il tuo assistente AI per il database. Chiedimi qualsiasi cosa tu voglia sapere.');
         });
     </script>
 </body>

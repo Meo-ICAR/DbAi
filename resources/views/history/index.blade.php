@@ -4,7 +4,7 @@
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
         <div class="p-6 bg-white border-b border-gray-200">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 space-y-4 md:space-y-0">
-                <h2 class="text-2xl font-semibold text-gray-800">Query History</h2>
+                <h2 class="text-2xl font-semibold text-gray-800">{{ __('Cronologia delle Query') }}</h2>
                 <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
                     <!-- Search Form -->
                     <form method="GET" action="{{ url('/history') }}" class="flex-1">
@@ -14,11 +14,12 @@
                             </div>
                             <input type="text" name="search" id="search" 
                                    class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-12 sm:text-sm border-gray-300 rounded-md" 
-                                   placeholder="Search queries..." 
+                                   placeholder="{{ __('Cerca query...') }}" 
                                    value="{{ request('search') }}">
                             @if(request('search'))
                                 <a href="{{ url('/history') }}" 
-                                   class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                                   class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                                   title="{{ __('Cancella ricerca') }}">
                                     <i class="fas fa-times"></i>
                                 </a>
                             @endif
@@ -26,7 +27,7 @@
                     </form>
                     
                     <a href="{{ url('/history/create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md whitespace-nowrap">
-                        <i class="fas fa-plus mr-2"></i>New Query
+                        <i class="fas fa-plus mr-2"></i>{{ __('Nuova Query') }}
                     </a>
                 </div>
             </div>
@@ -34,10 +35,10 @@
             @if($histories->isEmpty())
                 <div class="text-center py-12 text-gray-500">
                     <i class="fas fa-history text-4xl mb-4"></i>
-                    <p>No query history found.</p>
+                    <p>{{ __('Nessuna cronologia trovata.') }}</p>
                     @if(request()->has('search'))
                         <a href="{{ url('/history') }}" class="text-blue-600 hover:text-blue-800 mt-2 inline-block">
-                            Clear search
+                            {{ __('Cancella ricerca') }}
                         </a>
                     @endif
                 </div>
@@ -52,13 +53,12 @@
                                         @if($sortField === 'dashboardorder')
                                             <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ml-1"></i>
                                         @else
-                                            <i class="fas fa-sort ml-1 text-gray-300"></i>
                                         @endif
                                     </a>
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     <a href="{{ request()->fullUrlWithQuery(['sort' => 'message', 'direction' => $sortField === 'message' && $sortDirection === 'asc' ? 'desc' : 'asc']) }}" class="flex items-center">
-                                        Message
+                                        {{ __('Messaggio') }}
                                         @if($sortField === 'message')
                                             <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ml-1"></i>
                                         @else
@@ -68,7 +68,7 @@
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     <a href="{{ request()->fullUrlWithQuery(['sort' => 'charttype', 'direction' => $sortField === 'charttype' && $sortDirection === 'asc' ? 'desc' : 'asc']) }}" class="flex items-center">
-                                        Chart Type
+                                        {{ __('Tipo di Grafico') }}
                                         @if($sortField === 'charttype')
                                             <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ml-1"></i>
                                         @else
@@ -77,30 +77,31 @@
                                     </a>
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    <a href="{{ request()->fullUrlWithQuery(['sort' => 'submission_date', 'direction' => $sortField === 'submission_date' && $sortDirection === 'asc' ? 'desc' : 'asc']) }}" class="flex items-center">
-                                        Last Executed
-                                        @if($sortField === 'submission_date')
+                                    <a href="{{ request()->fullUrlWithQuery(['sort' => 'created_at', 'direction' => $sortField === 'created_at' && $sortDirection === 'asc' ? 'desc' : 'asc']) }}" class="flex items-center">
+                                        {{ __('Data di Creazione') }}
+                                        @if($sortField === 'created_at')
                                             <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ml-1"></i>
                                         @else
                                             <i class="fas fa-sort ml-1 text-gray-300"></i>
                                         @endif
                                     </a>
                                 </th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($histories as $history)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                        {{ $history->dashboardorder }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <div class="font-medium">{{ Str::limit($history->message, 40) }}</div>
-                                        <div class="text-xs text-gray-500 mt-1">
-                                            <code class="truncate block max-w-xs">{{ Str::limit($history->sqlstatement, 50) }}</code>
-                                        </div>
-                                    </td>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {{ __('Azioni') }}
+                                </th>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach($histories as $history)
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                            {{ $history->dashboardorder }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <div class="font-medium">{{ Str::limit($history->message, 40) }}</div>
+                                            <div class="text-xs text-gray-500 mt-1">
+                                                <code class="truncate block max-w-xs">{{ Str::limit($history->sqlstatement, 50) }}</code>
+                                            </div>
+                                        </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
                                             {{ $history->charttype === 'Table' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800' }}">

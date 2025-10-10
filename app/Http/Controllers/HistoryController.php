@@ -13,7 +13,7 @@ class HistoryController extends Controller
     public function index(Request $request)
     {
         $query = History::query();
-        
+
         // Search functionality
         if ($search = $request->input('search')) {
             $query->where(function($q) use ($search) {
@@ -22,21 +22,21 @@ class HistoryController extends Controller
                   ->orWhere('charttype', 'like', "%{$search}%");
             });
         }
-        
+
         // Sorting
         $sortField = $request->input('sort', 'submission_date');
         $sortDirection = $request->input('direction', 'desc');
-        
+
         // Validate sort direction
         if (!in_array(strtolower($sortDirection), ['asc', 'desc'])) {
             $sortDirection = 'desc';
         }
-        
+
         // Apply sorting
         $query->orderBy($sortField, $sortDirection);
-        
+
         $histories = $query->paginate(10)->withQueryString();
-        
+
         return view('history.index', [
             'histories' => $histories,
             'sortField' => $sortField,
@@ -149,16 +149,16 @@ class HistoryController extends Controller
             // Sort the results if a sort column is specified
             if ($sortColumn && $results->isNotEmpty() && array_key_exists($sortColumn, $results->first())) {
                 $sortDirection = strtolower($sortDirection) === 'desc' ? 'desc' : 'asc';
-                
+
                 $results = $results->sortBy(function($item) use ($sortColumn) {
                     $value = $item[$sortColumn] ?? null;
                     // Convert to string for case-insensitive comparison
                     return is_string($value) ? strtolower($value) : $value;
                 }, SORT_REGULAR, $sortDirection === 'desc');
             }
-            
+
             $results = $results->values()->all();
-            
+
             \Log::info('Processed results:', ['count' => count($results), 'first' => $results[0] ?? null]);
 
         } catch (\Exception $e) {
@@ -201,7 +201,7 @@ class HistoryController extends Controller
             if (!empty($results)) {
                 $firstRow = $results[0];
                 $columns = array_keys($firstRow);
-                
+
                 if (count($columns) >= 2) {
                     $labels = [];
                     $data = [];
@@ -209,7 +209,7 @@ class HistoryController extends Controller
                     foreach ($results as $row) {
                         $value = $row[$columns[1]] ?? null;
                         $label = $row[$columns[0]] ?? '';
-                        
+
                         if (is_numeric($value)) {
                             $labels[] = (string)$label;
                             $data[] = (float)$value;
@@ -273,7 +273,7 @@ class HistoryController extends Controller
                 if (!empty($results)) {
                     $firstRow = $results[0];
                     $columns = array_keys($firstRow);
-                    
+
                     if (count($columns) >= 2) {
                         $labels = [];
                         $data = [];
@@ -281,7 +281,7 @@ class HistoryController extends Controller
                         foreach ($results as $row) {
                             $value = $row[$columns[1]] ?? null;
                             $label = $row[$columns[0]] ?? '';
-                            
+
                             if (is_numeric($value)) {
                                 $labels[] = (string)$label;
                                 $data[] = (float)$value;
@@ -301,9 +301,9 @@ class HistoryController extends Controller
                         }
                     }
                 }
-                
+
                 $errors[] = "Could not generate chart for: " . $history->message;
-                
+
             } catch (\Exception $e) {
                 $errors[] = "Error processing '{$history->message}': " . $e->getMessage();
                 \Log::error('Error in dashboard chart generation:', [
@@ -329,7 +329,7 @@ class HistoryController extends Controller
         if ($history) {
             $history->update([
                 'submission_date' => now(),
-                'charttype' => $chartType,
+              //  'charttype' => $chartType,
             ]);
         } else {
             History::create([

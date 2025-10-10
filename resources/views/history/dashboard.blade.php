@@ -1,6 +1,31 @@
-@extends('history.layout')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Database Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen">
+        <!-- Navigation -->
+        <nav class="bg-blue-600 text-white shadow-lg">
+            <div class="container mx-auto px-4 py-3">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-4">
+                        <a href="{{ url('/') }}" class="text-xl font-bold">Database Assistant</a>
+                        <a href="{{ url('/chat') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Chat</a>
+                        <a href="{{ url('/history') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Query History</a>
+                        <a href="{{ url('/dashboard') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
 
-@section('content')
+        <!-- Page Content -->
+        <main class="container mx-auto px-4 py-6">
 <div class="container mx-auto px-4 py-6">
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
@@ -52,15 +77,15 @@
                     <div class="flex justify-between items-center">
                         <h3 class="text-lg font-medium text-gray-900">{{ $chart['title'] }}</h3>
                         <div class="flex space-x-2">
-                            <a href="{{ route('history.display', $chart['history']) }}" 
+                            <a href="{{ route('history.display', $chart['history']) }}"
                                class="text-gray-400 hover:text-gray-600"
                                title="View Table">
                                 <i class="fas fa-table"></i>
                             </a>
-                            <a href="{{ route('history.chart', $chart['history']) }}" 
+                            <a href="{{ route('history.chart', $chart['history']) }}"
                                class="text-gray-400 hover:text-blue-600"
                                title="View Full Chart">
-                                <i class="fas fa-expand"></i>
+                                <i class="fas fa-chart-pie"></i>
                             </a>
                         </div>
                     </div>
@@ -75,56 +100,139 @@
     </div>
 </div>
 
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
+</main>
+    </div>
+
+    <!-- Debug Info (temporary) -->
+    @if(!empty($charts) && config('app.debug'))
+    <div class="container mx-auto px-4 py-6">
+        <h3 class="text-lg font-semibold mb-2">Debug Information:</h3>
+        <pre class="bg-gray-100 p-4 rounded overflow-auto text-xs">{{ json_encode($charts, JSON_PRETTY_PRINT) }}</pre>
+    </div>
+    @endif
+
+    <script>
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM fully loaded, initializing charts...');
         @foreach($charts as $chart)
-            const ctx{{ $loop->index }} = document.getElementById('{{ $chart['id'] }}').getContext('2d');
-            new Chart(ctx{{ $loop->index }}, {
-                type: '{{ $chart['type'] }}',
-                data: {
-                    labels: @json($chart['labels']),
-                    datasets: [{
-                        label: '{{ $chart['title'] }}',
-                        data: @json($chart['data']),
-                        backgroundColor: [
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(153, 102, 255, 0.2)',
-                            'rgba(255, 159, 64, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(255, 159, 64, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                        }
+            try {
+                console.log('Initializing chart:', '{{ $chart['id'] }}');
+                const ctx{{ $loop->index }} = document.getElementById('{{ $chart['id'] }}');
+
+                if (!ctx{{ $loop->index }}) {
+                    console.error('Canvas element not found for chart:', '{{ $chart['id'] }}');
+                    return;
+                }
+
+                const chartData = {
+                    type: '{{ $chart['type'] }}',
+                    data: {
+                        labels: @json($chart['labels']),
+                        datasets: [{
+                            label: '{{ $chart['title'] }}',
+                            data: @json($chart['data']),
+                            backgroundColor: [
+                                'rgba(54, 162, 235, 0.5)',
+                                'rgba(255, 99, 132, 0.5)',
+                                'rgba(255, 206, 86, 0.5)',
+                                'rgba(75, 192, 192, 0.5)',
+                                'rgba(153, 102, 255, 0.5)',
+                                'rgba(255, 159, 64, 0.5)'
+                            ],
+                            borderColor: [
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 1000,
+                            easing: 'easeInOutQuad'
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: '{{ $chart['title'] }}',
+                                font: {
+                                    size: 16
+                                },
+                                padding: {
+                                    top: 10,
+                                    bottom: 20
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    display: true,
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                },
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        layout: {
+                            padding: {
+                                left: 10,
+                                right: 10,
+                                top: 10,
+                                bottom: 10
+                            }
                         }
                     }
-                }
-            });
+                };
+
+                console.log('Chart data for', '{{ $chart['id'] }}', chartData);
+
+                // Initialize the chart
+                new Chart(ctx{{ $loop->index }}, chartData);
+                console.log('Chart initialized successfully:', '{{ $chart['id'] }}');
+
+            } catch (error) {
+                console.error('Error initializing chart {{ $chart['id'] }}:', error);
+                const container = document.getElementById('{{ $chart['id'] }}').parentNode;
+                container.innerHTML = `
+                    <div class="bg-red-50 border-l-4 border-red-400 p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-circle text-red-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-red-700">
+                                    Error loading chart: ${error.message}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
         @endforeach
     });
-</script>
-@endpush
-
-@endsection
+    </script>
+</body>
+</html>

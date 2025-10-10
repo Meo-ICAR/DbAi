@@ -14,11 +14,16 @@ Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.se
 Route::get('/chat/chart', [ChatController::class, 'showChart'])->name('chat.chart');
 
 // History Routes
-Route::prefix('history')->group(function () {
-    Route::resource('/', HistoryController::class)->except(['show']);
-    Route::get('{history}', [HistoryController::class, 'show'])->name('history.show');
-    Route::get('{history}/display', [HistoryController::class, 'display'])->name('history.display');
-    Route::get('{history}/chart', [HistoryController::class, 'chart'])->name('history.chart');
+Route::prefix('history')->name('history.')->group(function () {
+    Route::get('/', [HistoryController::class, 'index'])->name('index');
+    Route::get('/create', [HistoryController::class, 'create'])->name('create');
+    Route::post('/', [HistoryController::class, 'store'])->name('store');
+    Route::get('/{history}/edit', [HistoryController::class, 'edit'])->name('edit');
+    Route::put('/{history}', [HistoryController::class, 'update'])->name('update');
+    Route::delete('/{history}', [HistoryController::class, 'destroy'])->name('destroy');
+    Route::get('/{history}', [HistoryController::class, 'show'])->name('show');
+    Route::get('/{history}/display', [HistoryController::class, 'display'])->name('display');
+    Route::get('/{history}/chart', [HistoryController::class, 'chart'])->name('chart');
 });
 
 // Dashboard Route
