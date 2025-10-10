@@ -16,7 +16,7 @@ class DbDemo extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'neuronai:dbdemo {--interactive : Run interactive demo}';
+    protected $signature = 'dbai:dbdemo {--interactive : Run interactive demo}';
 
     /**
      * The console command description.
@@ -118,7 +118,7 @@ class DbDemo extends Command
         foreach ($testMessages as $index => $message) {
             // Clear previous query log
             DataAnalystAgent::clearQueryLog();
-            
+
             $this->info("Test " . ($index + 1) . "/" . count($testMessages));
             $this->line("User: " . $message);
 
@@ -129,21 +129,21 @@ class DbDemo extends Command
                 try {
                     $response = $agent->chat(new UserMessage($message));
                     $this->line("Agent: " . $response->getContent());
-                    
+
                     // Display the executed queries
                     $queries = DataAnalystAgent::getQueryLog();
                     if (!empty($queries)) {
                         $this->info("\nExecuted Queries:");
                         foreach ($queries as $i => $query) {
                             $this->line(sprintf(
-                                "%d. [%s] %s", 
-                                $i + 1, 
+                                "%d. [%s] %s",
+                                $i + 1,
                                 $query['timestamp'],
                                 $this->formatQuery($query['query'], $query['params'] ?? [])
                             ));
                         }
                     }
-                    
+
                     $this->newLine();
                     $success = true;
 
@@ -174,7 +174,7 @@ class DbDemo extends Command
         $this->info('✅ Demo completed successfully!');
         return 0;
     }
-    
+
     /**
      * Format SQL query with parameters for display
      */
@@ -183,12 +183,12 @@ class DbDemo extends Command
         if (empty($params)) {
             return $query;
         }
-        
+
         // Simple parameter binding for display purposes
         foreach ($params as $param => $value) {
             $query = str_replace(":$param", "'$value'", $query);
         }
-        
+
         return $query;
     }
 }

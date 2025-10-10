@@ -106,6 +106,7 @@ class HistoryController extends Controller
             'message' => $validated['message'],
             'sqlstatement' => $validated['sqlstatement'],
             'charttype' => $validated['charttype'] ?? 'Pie Chart',
+            'dashboardorder' => $validated['dashboardorder'] ?? 0,
             'submission_date' => now(),
         ]);
 
