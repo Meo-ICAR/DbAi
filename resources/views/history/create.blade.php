@@ -4,7 +4,12 @@
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
         <div class="p-6 bg-white border-b border-gray-200">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-semibold text-gray-800">Save New Query</h2>
+                <div class="flex items-center space-x-4">
+                    <h2 class="text-2xl font-semibold text-gray-800">Save New Query</h2>
+                    <div x-data="{ showInfo: false }">
+                        <x-info-button page="history-create" />
+                    </div>
+                </div>
                 <a href="{{ route('history.index') }}" class="text-gray-600 hover:text-gray-900">
                     <i class="fas fa-arrow-left mr-1"></i> Back to List
                 </a>
