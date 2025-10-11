@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
 </head>
 <body class="bg-gray-100">
     <div class="min-h-screen">
@@ -28,7 +29,12 @@
         <main class="container mx-auto px-4 py-6">
 <div class="container mx-auto px-4 py-6">
     <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+        <div class="flex items-center space-x-4">
+            <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+            <div x-data="{ showInfo: false }">
+                <x-info-button page="dashboard" />
+            </div>
+        </div>
         <a href="{{ url('/history') }}" class="text-blue-600 hover:text-blue-800 flex items-center">
             <i class="fas fa-arrow-left mr-2"></i> Back to History
         </a>
