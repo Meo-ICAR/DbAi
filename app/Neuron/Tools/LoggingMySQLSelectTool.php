@@ -28,7 +28,7 @@ class LoggingMySQLSelectTool extends BaseMySQLSelectTool
     {
         self::$queryLog = [];
     }
-    
+
     /**
      * Get the last executed query
      */
@@ -36,10 +36,10 @@ class LoggingMySQLSelectTool extends BaseMySQLSelectTool
     {
         return !empty(self::$queryLog) ? end(self::$queryLog) : null;
     }
-    
+
     /**
      * Execute a query with logging
-     * 
+     *
      * @param string $query The SQL query to execute
      * @param array|null $parameters The query parameters
      * @return string|array The query results
@@ -53,12 +53,12 @@ class LoggingMySQLSelectTool extends BaseMySQLSelectTool
             'params' => $parameters ?? [],
             'timestamp' => now()->toDateTimeString(),
         ];
-        
+
         self::$queryLog[] = $logEntry;
-        
+
         // Log to Laravel's log
-        Log::debug('MySQL Query', $logEntry);
-        
+      //  Log::debug('MySQL Query', $logEntry);
+
         // Call the parent implementation
         return parent::__invoke($query, $parameters);
     }

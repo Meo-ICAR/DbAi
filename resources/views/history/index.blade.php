@@ -49,7 +49,7 @@
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     <a href="{{ request()->fullUrlWithQuery(['sort' => 'dashboardorder', 'direction' => $sortField === 'dashboardorder' && $sortDirection === 'asc' ? 'desc' : 'asc']) }}" class="flex items-center">
-                                        #
+                                        Dashboard #
                                         @if($sortField === 'dashboardorder')
                                             <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ml-1"></i>
                                         @else
@@ -105,14 +105,14 @@
                                 <tr class="{{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50' }} hover:bg-blue-100 [&:hover>*]:text-blue-800 transition-colors duration-200">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                                             <div class="flex items-center justify-center space-x-1">
-                                                <button onclick="updateDashboardOrder({{ $history->id }}, -10)" 
-                                                        class="text-gray-500 hover:text-blue-600 p-1 rounded-full hover:bg-gray-100"
+                                                <button data-history-id="{{ $history->id }}" data-change="-10"
+                                                        class="update-order-btn text-gray-500 hover:text-blue-600 p-1 rounded-full hover:bg-gray-100"
                                                         title="Decrease order by 10">
                                                     <i class="fas fa-minus-circle"></i>
                                                 </button>
                                                 <span class="px-2">{{ $history->dashboardorder }}</span>
-                                                <button onclick="updateDashboardOrder({{ $history->id }}, 10)" 
-                                                        class="text-gray-500 hover:text-blue-600 p-1 rounded-full hover:bg-gray-100"
+                                                <button data-history-id="{{ $history->id }}" data-change="10"
+                                                        class="update-order-btn text-gray-500 hover:text-blue-600 p-1 rounded-full hover:bg-gray-100"
                                                         title="Increase order by 10">
                                                     <i class="fas fa-plus-circle"></i>
                                                 </button>
@@ -193,42 +193,69 @@
 
 @push('scripts')
 <script>
-function updateDashboardOrder(historyId, change) {
+// Function to handle dashboard order updates
+function updateDashboardOrder(button, historyId, change) {
+    if (!button || !historyId || isNaN(change)) return;
+
     // Show loading state
-    const button = event.target.closest('button');
     const originalHtml = button.innerHTML;
     button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     button.disabled = true;
-    
+
     // Get CSRF token
-    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    
+    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+    if (!csrfToken) {
+        alert('Errore di sicurezza. Si prega di ricaricare la pagina.');
+        button.innerHTML = originalHtml;
+        button.disabled = false;
+        return;
+    }
+
+    const token = csrfToken.getAttribute('content');
+    const url = `/history/${historyId}/update-order`;
+
     // Send AJAX request
-    fetch(`/history/${historyId}/update-order`, {
+    fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': token,
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify({ change })
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            return response.text().then(text => {
+                throw new Error(`Errore: ${response.status}`);
+            });
         }
-        return response.json();
-    })
-    .then(data => {
-        // Reload the page to see the updated order
         window.location.reload();
     })
     .catch(error => {
-        console.error('Error updating dashboard order:', error);
         alert('Si è verificato un errore durante l\'aggiornamento dell\'ordine.');
         button.innerHTML = originalHtml;
         button.disabled = false;
     });
 }
+
+// Add event listeners after DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click event listeners to all order buttons
+    document.querySelectorAll('.update-order-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const historyId = this.getAttribute('data-history-id');
+            const change = parseInt(this.getAttribute('data-change'));
+
+            if (!historyId || isNaN(change)) return;
+
+            updateDashboardOrder(this, historyId, change);
+        });
+    });
+});
 </script>
 @endpush
