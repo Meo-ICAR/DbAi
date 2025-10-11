@@ -1,3 +1,7 @@
+@php
+    $page = 'history-display';
+@endphp
+
 @extends('history.layout')
 
 @section('content')

@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @php
+        $page = $page ?? 'history-index';
+    @endphp
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Query History - Database Assistant</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -20,6 +23,9 @@
                         <a href="{{ url('/chat') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Chat</a>
                         <a href="{{ url('/history') }}" class="{{ request()->is('history*') ? 'bg-blue-700' : 'hover:bg-blue-700' }} px-3 py-2 rounded">Query History</a>
                         <a href="{{ url('/dashboard') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Dashboard</a>
+                    </div>
+                    <div x-data="{ showInfo: false }">
+                        <x-info-button page="{{ $page }}" />
                     </div>
                 </div>
             </div>

@@ -1,15 +1,13 @@
+@php
+    $page = 'history-index';
+@endphp
 @extends('history.layout')
 
 @section('content')
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
         <div class="p-6 bg-white border-b border-gray-200">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 space-y-4 md:space-y-0">
-                <div class="flex items-center space-x-4">
-                    <h2 class="text-2xl font-semibold text-gray-800">{{ __('Cronologia delle Query') }}</h2>
-                    <div x-data="{ showInfo: false }">
-                        <x-info-button page="history-index" />
-                    </div>
-                </div>
+                <h2 class="text-2xl font-semibold text-gray-800">{{ __('Cronologia delle Query') }}</h2>
                 <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
                     <!-- Search Form -->
                     <form method="GET" action="{{ url('/history') }}" class="flex-1">
