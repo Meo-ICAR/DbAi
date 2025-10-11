@@ -1,61 +1,126 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Database AI Assistant
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="https://img.icons8.com/color/96/000000/database.png" alt="Database AI Assistant Logo" width="120">
 </p>
 
-## About Laravel
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#requirements">Requirements</a> •
+  <a href="#installation">Installation</a> •
+  <a href="#usage">Usage</a> •
+  <a href="#screenshots">Screenshots</a> •
+  <a href="#contributing">Contributing</a> •
+  <a href="#license">License</a>
+</p>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Natural Language to SQL**: Convert plain English / Italian queries into SQL commands
+- **Interactive Query Builder**: Visual interface for building complex queries
+- **Query History**: Save, manage, and reuse your queries
+- **Data Visualization**: Generate charts and graphs from query results
+- **Multi-Database Support**: Connect to various database systems
+- **User Management**: Secure authentication and authorization
+- **Dashboard**: Customizable dashboard for your favorite queries
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🛠️ Requirements
 
-## Learning Laravel
+- PHP 8.1 or higher
+- Composer
+- MySQL 8.0+ / PostgreSQL 13+ / SQLite 3.8.8+
+- Node.js 16+ and NPM
+- Laravel 10.x
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🚀 Installation
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/dbai.git
+   cd dbai
+   ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+2. Install PHP dependencies:
+   ```bash
+   composer install
+   ```
 
-## Laravel Sponsors
+3. Install NPM dependencies:
+   ```bash
+   npm install
+   npm run build
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+4. Create a copy of the .env file:
+   ```bash
+   cp .env.example .env
+   ```
 
-### Premium Partners
+5. Generate application key:
+   ```bash
+   php artisan key:generate
+   ```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+6. Configure your database and insert GEMINI API KEY in `.env`:
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=dbai
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+   AI_DRIVER=gemini
+   GEMINI_API_KEY=<your-gemini-api-key>
+    GEMINI_MODEL=gemini-2.5-flash
+    GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1
+    AI_DEBUG=true
 
-## Contributing
+7. Run migrations and seeders:
+   ```bash
+   php artisan migrate --seed
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+8. Start the development server:
+   ```bash
+   php artisan serve
+   ```
 
-## Code of Conduct
+9. Visit `http://localhost:8000` in your browser
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 📸 Screenshots
 
-## Security Vulnerabilities
+### Query Interface
+![Query Interface](public/images/screenshots/query-interface.png)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Dashboard
+![Dashboard](public/images/screenshots/dashboard.png)
 
-## License
+### Query Results
+![Query Results](public/images/screenshots/query-results.png)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Laravel](https://laravel.com) - The PHP Framework For Web Artisans
+- [Tailwind CSS](https://tailwindcss.com) - A utility-first CSS framework
+- [Alpine.js](https://alpinejs.dev) - A rugged, minimal framework for composing JavaScript behavior in your markup
+
+## 📧 Contact
+
+Your Name - [@HassistoDev](https://twitter.com/HassistoDev - info@hassisto.com
+
+Project Link: [https://github.com/Meo-ICAR/DbAI.git  (https://github.com/Meo-ICAR/DbAI.git)
