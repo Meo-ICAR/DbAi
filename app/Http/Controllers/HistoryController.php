@@ -87,7 +87,23 @@ class HistoryController extends Controller
     }
 
     /**
-     * Show the form for editing the specified history entry.
+     * Update the dashboard order of the specified resource.
+     */
+    public function updateOrder(Request $request, History $history)
+    {
+        $request->validate([
+            'change' => 'required|integer'
+        ]);
+
+        $history->update([
+            'dashboardorder' => $history->dashboardorder + $request->change
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
      */
     public function edit(History $history)
     {
@@ -135,6 +151,9 @@ class HistoryController extends Controller
      */
     public function display(History $history, Request $request)
     {
+        // Increment view counter
+        $history->increment('nviewed');
+        
         // Check for export request first
         if ($request->has('export')) {
             return $this->exportToExcel($history, $request);
@@ -231,6 +250,9 @@ class HistoryController extends Controller
      */
     public function chart(History $history)
     {
+        // Increment view counter
+        $history->increment('nviewed');
+        
         $chartData = null;
         $error = null;
 

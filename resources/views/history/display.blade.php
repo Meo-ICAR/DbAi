@@ -78,8 +78,8 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200" id="results-table">
-                        @foreach($results as $row)
-                            <tr>
+                        @foreach($results as $index => $row)
+                        <tr class="{{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50' }} hover:bg-blue-100 [&:hover>*]:text-blue-800 transition-colors duration-200">
                                 @foreach($row as $value)
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $value }}

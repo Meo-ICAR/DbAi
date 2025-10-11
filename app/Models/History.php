@@ -10,7 +10,9 @@ class History extends Model
         'submission_date',
         'message',
         'sqlstatement',
-        'charttype'
+        'charttype',
+        'dashboardorder',
+        'nviewed'
     ];
 
     protected $casts = [

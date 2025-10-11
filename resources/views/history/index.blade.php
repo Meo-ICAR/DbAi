@@ -87,14 +87,36 @@
                                     </a>
                                 </th>
                                 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <a href="{{ request()->fullUrlWithQuery(['sort' => 'nviewed', 'direction' => $sortField === 'nviewed' && $sortDirection === 'asc' ? 'desc' : 'asc']) }}" class="flex items-center justify-center">
+                                        {{ __('Visualizzazioni') }}
+                                        @if($sortField === 'nviewed')
+                                            <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ml-1"></i>
+                                        @else
+                                            <i class="fas fa-sort ml-1 text-gray-300"></i>
+                                        @endif
+                                    </a>
+                                </th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     {{ __('Azioni') }}
                                 </th>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach($histories as $history)
-                                    <tr class="hover:bg-gray-50">
+                                @foreach($histories as $index => $history)
+                                <tr class="{{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50' }} hover:bg-blue-100 [&:hover>*]:text-blue-800 transition-colors duration-200">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                            {{ $history->dashboardorder }}
+                                            <div class="flex items-center justify-center space-x-1">
+                                                <button onclick="updateDashboardOrder({{ $history->id }}, -10)" 
+                                                        class="text-gray-500 hover:text-blue-600 p-1 rounded-full hover:bg-gray-100"
+                                                        title="Decrease order by 10">
+                                                    <i class="fas fa-minus-circle"></i>
+                                                </button>
+                                                <span class="px-2">{{ $history->dashboardorder }}</span>
+                                                <button onclick="updateDashboardOrder({{ $history->id }}, 10)" 
+                                                        class="text-gray-500 hover:text-blue-600 p-1 rounded-full hover:bg-gray-100"
+                                                        title="Increase order by 10">
+                                                    <i class="fas fa-plus-circle"></i>
+                                                </button>
+                                            </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             <div class="font-medium">{{ Str::limit($history->message, 40) }}</div>
@@ -112,6 +134,11 @@
                                         <div title="{{ $history->submission_date->format('Y-m-d H:i:s') }}">
                                             {{ $history->submission_date->diffForHumans() }}
                                         </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100">
+                                            {{ $history->nviewed }}
+                                        </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <a href="{{ url("/history/{$history->id}/display") }}"
@@ -163,3 +190,45 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+function updateDashboardOrder(historyId, change) {
+    // Show loading state
+    const button = event.target.closest('button');
+    const originalHtml = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    button.disabled = true;
+    
+    // Get CSRF token
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    
+    // Send AJAX request
+    fetch(`/history/${historyId}/update-order`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': token,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ change })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Reload the page to see the updated order
+        window.location.reload();
+    })
+    .catch(error => {
+        console.error('Error updating dashboard order:', error);
+        alert('Si è verificato un errore durante l\'aggiornamento dell\'ordine.');
+        button.innerHTML = originalHtml;
+        button.disabled = false;
+    });
+}
+</script>
+@endpush
