@@ -37,12 +37,12 @@ class ChatController extends Controller
             // Get the query results if available
             $results = [];
             $isGroupByQuery = false;
-            
+
             if ($lastQuery) {
                 try {
                     // Check if this is a GROUP BY query
                     $isGroupByQuery = stripos($lastQuery['query'], 'GROUP BY') !== false;
-                    
+
                     // Execute the query to get results
                     $pdo = \DB::connection()->getPdo();
                     $stmt = $pdo->prepare($lastQuery['query']);
@@ -75,24 +75,17 @@ class ChatController extends Controller
                 'results' => $results
             ];
 
-            // If it's an AJAX request, return JSON
+            // For AJAX requests, return JSON response
             if ($request->ajax()) {
                 return response()->json($responseData);
             }
             
-            // If it's a GROUP BY query and not an AJAX request, redirect to chart view
-            if ($isGroupByQuery && !empty($results)) {
-                return redirect()->route('chat.chart', [
-                    'query' => base64_encode($lastQuery['query']),
-                    'params' => base64_encode(json_encode($lastQuery['params'] ?? []))
-                ]);
-            }
-            
-            // Otherwise, return the regular chat view
+            // For non-AJAX requests, return the chat view
             return view('chat.index', [
                 'response' => $response->getContent(),
                 'query' => $lastQuery,
-                'results' => $results
+                'results' => $results,
+                'isGroupByQuery' => $isGroupByQuery
             ]);
 
         } catch (\Exception $e) {
@@ -102,11 +95,11 @@ class ChatController extends Controller
                     'message' => $e->getMessage()
                 ], 500);
             }
-            
+
             return back()->with('error', $e->getMessage());
         }
     }
-    
+
     /**
      * Show the chart view for a GROUP BY query
      */
@@ -115,22 +108,22 @@ class ChatController extends Controller
         try {
             $query = base64_decode($request->query('query'));
             $params = json_decode(base64_decode($request->query('params')), true) ?? [];
-            
+
             if (empty($query)) {
                 throw new \Exception('No query provided');
             }
-            
+
             // Execute the query to get results
             $pdo = \DB::connection()->getPdo();
             $stmt = $pdo->prepare($query);
             $stmt->execute($params);
             $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-            
+
             return view('chat.chart', [
                 'chartData' => $results,
                 'query' => $query
             ]);
-            
+
         } catch (\Exception $e) {
             return back()->with('error', 'Could not generate chart: ' . $e->getMessage());
         }

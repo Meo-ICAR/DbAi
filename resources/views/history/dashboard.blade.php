@@ -154,61 +154,65 @@
                             borderWidth: 1
                         }]
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        animation: {
-                            duration: 1000,
-                            easing: 'easeInOutQuad'
-                        },
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    padding: 20,
+                    options: (function() {
+                        const isPieChart = '{{ $chart['type'] }}'.toLowerCase().includes('pie') || '{{ $chart['type'] }}'.toLowerCase().includes('doughnut');
+                        
+                        return {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: {
+                                duration: 1000,
+                                easing: 'easeInOutQuad'
+                            },
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 20,
+                                        font: {
+                                            size: 12
+                                        }
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: '{{ $chart['title'] }}',
                                     font: {
-                                        size: 12
+                                        size: 16
+                                    },
+                                    padding: {
+                                        top: 10,
+                                        bottom: 20
                                     }
                                 }
                             },
-                            title: {
-                                display: true,
-                                text: '{{ $chart['title'] }}',
-                                font: {
-                                    size: 16
+                            scales: isPieChart ? {} : {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        display: true,
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                    },
+                                    ticks: {
+                                        stepSize: 1
+                                    }
                                 },
-                                padding: {
-                                    top: 10,
-                                    bottom: 20
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    display: true,
-                                    color: 'rgba(0, 0, 0, 0.05)'
-                                },
-                                ticks: {
-                                    stepSize: 1
+                                x: {
+                                    grid: {
+                                        display: false
+                                    }
                                 }
                             },
-                            x: {
-                                grid: {
-                                    display: false
+                            layout: {
+                                padding: {
+                                    left: 10,
+                                    right: 10,
+                                    top: 10,
+                                    bottom: 10
                                 }
                             }
-                        },
-                        layout: {
-                            padding: {
-                                left: 10,
-                                right: 10,
-                                top: 10,
-                                bottom: 10
-                            }
-                        }
-                    }
+                        };
+                    })()
                 };
 
                 console.log('Chart data for', '{{ $chart['id'] }}', chartData);

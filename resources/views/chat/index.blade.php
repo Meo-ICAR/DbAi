@@ -11,23 +11,10 @@
 </head>
 <body class="bg-gray-100">
     <!-- Navigation -->
-    <nav class="bg-blue-600 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-3">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-4">
-                    <a href="{{ url('/') }}" class="text-xl font-bold">Database Assistant</a>
-                    <a href="{{ url('/chat') }}" class="bg-blue-700 px-3 py-2 rounded">Chat</a>
-                    <a href="{{ url('/history') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Query</a>
-                    <a href="{{ url('/dashboard') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Dashboard</a>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <div x-data="{ showInfo: false }">
-                        <x-info-button page="chat" />
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
+    @php
+        $page = 'chat';
+    @endphp
+    <x-navbar :page="$page" />
 
     <div class="container mx-auto max-w-4xl p-4">
         <div class="bg-white rounded-lg shadow-lg overflow-hidden">
@@ -97,10 +84,23 @@
         const chatMessages = document.getElementById('chat-messages');
         const queryDebug = document.getElementById('query-debug');
 
-        // Scroll to bottom of chat
+        // Smooth scroll to bottom of chat
         function scrollToBottom() {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            // Use requestAnimationFrame for smooth scrolling
+            requestAnimationFrame(() => {
+                chatMessages.scrollTo({
+                    top: chatMessages.scrollHeight,
+                    behavior: 'smooth'
+                });
+            });
         }
+
+        // Handle window resize to maintain scroll position
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(scrollToBottom, 250);
+        });
 
         // Toggle debug section
         function toggleDebug() {
@@ -112,23 +112,49 @@
             arrow.classList.toggle('fa-chevron-up');
         }
 
-        // Add message to chat
+        // Add message to chat with smooth scrolling
         function addMessage(role, content) {
+            // Create message container
             const messageDiv = document.createElement('div');
-            messageDiv.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+            messageDiv.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} mb-4 last:mb-0`;
 
+            // Create message bubble
             const bubble = document.createElement('div');
             bubble.className = `max-w-3/4 p-3 rounded-lg ${role === 'user'
                 ? 'bg-blue-600 text-white rounded-br-none'
                 : 'bg-gray-200 text-gray-800 rounded-bl-none'}`;
 
-            // Format content with line breaks
-            const formattedContent = content.replace(/\n/g, '<br>');
+            // Format content with line breaks and preserve whitespace
+            const formattedContent = content
+                .replace(/\n/g, '<br>')
+                .replace(/  /g, '&nbsp;&nbsp;');
+            
             bubble.innerHTML = formattedContent;
-
             messageDiv.appendChild(bubble);
-            chatMessages.appendChild(messageDiv);
+            
+            // Add typing indicator for assistant messages
+            if (role === 'assistant') {
+                const typingIndicator = document.createElement('div');
+                typingIndicator.id = 'typing-indicator';
+                typingIndicator.className = 'flex space-x-1 py-2 px-4';
+                typingIndicator.innerHTML = `
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                `;
+                
+                // Add message and typing indicator to chat
+                chatMessages.appendChild(messageDiv);
+                chatMessages.appendChild(typingIndicator);
+            } else {
+                chatMessages.appendChild(messageDiv);
+            }
+            
+            // Smooth scroll to bottom
             scrollToBottom();
+            
+            // Return the message div for later reference
+            return messageDiv;
         }
 
         // Display query results in a table
@@ -235,27 +261,33 @@
             const message = userInput.value.trim();
             if (!message) return;
 
-            // Add user message to chat
-            addMessage('user', message);
-            userInput.value = '';
-
-            // Show typing indicator
-            const typingIndicator = document.createElement('div');
-            typingIndicator.id = 'typing-indicator';
-            typingIndicator.className = 'flex justify-start';
-            typingIndicator.innerHTML = `
-                <div class="bg-gray-200 text-gray-800 p-3 rounded-lg rounded-bl-none">
-                    <div class="flex space-x-1">
-                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
-                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
-                    </div>
-                </div>
-            `;
-            chatMessages.appendChild(typingIndicator);
-            scrollToBottom();
-
+            // Get submit button and disable it
+            const submitButton = chatForm.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            
             try {
+                // Disable input and button while processing
+                userInput.disabled = true;
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+                // Add user message to chat
+                addMessage('user', message);
+                userInput.value = '';
+                userInput.focus();
+
+                // Show typing indicator
+                const typingIndicator = document.createElement('div');
+                typingIndicator.id = 'typing-indicator';
+                typingIndicator.className = 'flex space-x-1 py-2 px-4';
+                typingIndicator.innerHTML = `
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                `;
+                chatMessages.appendChild(typingIndicator);
+                scrollToBottom();
+
                 // Get CSRF token from meta tag
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
@@ -272,20 +304,16 @@
                     body: JSON.stringify({ message })
                 });
 
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
                 const data = await response.json();
 
                 // Remove typing indicator
                 document.getElementById('typing-indicator')?.remove();
 
                 if (data.status === 'success') {
-                    // If it's a GROUP BY query, redirect to the chart view
-                    if (data.is_group_by && data.query) {
-                        const query = encodeURIComponent(btoa(data.query.sql));
-                        const params = encodeURIComponent(btoa(JSON.stringify(data.query.params || [])));
-                        window.location.href = `{{ route('chat.chart') }}?query=${query}&params=${params}`;
-                        return;
-                    }
-
                     // Add assistant's response to chat
                     addMessage('assistant', data.response);
 
@@ -299,13 +327,19 @@
                         displayQueryResults(data.results);
                     }
                 } else {
-                    addMessage('assistant', 'Spiacente, c\u00f9 avvenuto un errore.');
+                    addMessage('assistant', 'Spiacente, c\u00f9 avvenuto un errore: ' + (data.message || 'Errore sconosciuto'));
                     console.error('Error:', data.message);
                 }
             } catch (error) {
-                document.getElementById('typing-indicator')?.remove();
-                addMessage('assistant', 'Spiacente non riesco a collegarmi al database');
                 console.error('Error:', error);
+                document.getElementById('typing-indicator')?.remove();
+                addMessage('assistant', 'Spiacente, si è verificato un errore durante l\'elaborazione della tua richiesta.');
+            } finally {
+                // Always re-enable the form and button
+                userInput.disabled = false;
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+                userInput.focus();
             }
         });
 

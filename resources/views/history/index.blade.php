@@ -149,11 +149,6 @@
                                            title="Execute query">
                                             <i class="fas fa-play"></i>
                                         </a>
-                                        <a href="{{ url("/history/{$history->id}") }}"
-                                           class="text-blue-600 hover:text-blue-900 mr-3"
-                                           title="View details">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
                                         <a href="{{ url("/history/{$history->id}/edit") }}"
                                            class="text-indigo-600 hover:text-indigo-900 mr-3"
                                            title="Edit query">

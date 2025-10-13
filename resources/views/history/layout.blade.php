@@ -15,21 +15,7 @@
 <body class="bg-gray-100">
     <div class="min-h-screen">
         <!-- Navigation -->
-        <nav class="bg-blue-600 text-white shadow-lg">
-            <div class="container mx-auto px-4 py-3">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center space-x-4">
-                        <a href="{{ url('/') }}" class="text-xl font-bold">Database Assistant</a>
-                        <a href="{{ url('/chat') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Chat</a>
-                        <a href="{{ url('/history') }}" class="{{ request()->is('history*') ? 'bg-blue-700' : 'hover:bg-blue-700' }} px-3 py-2 rounded">Query History</a>
-                        <a href="{{ url('/dashboard') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Dashboard</a>
-                    </div>
-                    <div x-data="{ showInfo: false }">
-                        <x-info-button page="{{ $page }}" />
-                    </div>
-                </div>
-            </div>
-        </nav>
+        <x-navbar :page="$page" />
 
         <!-- Page Content -->
         <main class="container mx-auto px-4 py-6">
