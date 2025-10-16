@@ -32,14 +32,14 @@ class AppServiceProvider extends ServiceProvider
         // Set database based on the current host
         if (str_ends_with($host, 'hassisto.com')) {
             Log::info('Setting database to proforma for host: ' . $host);
-            
+
             // Update database configuration
             config(['database.connections.mysql.database' => 'proforma']);
-            
+
             // Reconnect to the database with new settings
             DB::purge('mysql');
             DB::reconnect('mysql');
-            
+
             Log::info('Database connection updated', [
                 'database' => config('database.connections.mysql.database')
             ]);
