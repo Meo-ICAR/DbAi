@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,18 +21,28 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Debug logging
+        $host = request()->getHost();
+        Log::info('AppServiceProvider booting', [
+            'host' => $host,
+            'full_url' => request()->fullUrl(),
+            'time' => now()->toDateTimeString()
+        ]);
+
         // Set database based on the current host
-       // if (request()->getHost() === 'chartai.hassisto.com') {
-        if (str_ends_with(request()->getHost(), 'hassisto.com')) {
+        if (str_ends_with($host, 'hassisto.com')) {
+            Log::info('Setting database to proforma for host: ' . $host);
+            
             // Update database configuration
             config(['database.connections.mysql.database' => 'proforma']);
-            // Uncomment and update these if you need to change username/password
-            // config(['database.connections.mysql.username' => 'your_username']);
-            // config(['database.connections.mysql.password' => 'your_password']);
-
+            
             // Reconnect to the database with new settings
             DB::purge('mysql');
             DB::reconnect('mysql');
+            
+            Log::info('Database connection updated', [
+                'database' => config('database.connections.mysql.database')
+            ]);
         }
     }
 }
