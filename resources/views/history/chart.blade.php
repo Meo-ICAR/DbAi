@@ -62,7 +62,9 @@
                 </div>
             </div>
         @else
-        <canvas id="results-chart" data-url="{{ route('history.subdashboard', ['history' => $history->id]) }}">
+        <canvas id="results-chart" data-url="{{ route('history.subdashboard', ['history' => $history->id
+
+        ]) }}">
         </canvas>
         @endif
     </div>

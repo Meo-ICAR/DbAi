@@ -80,6 +80,7 @@
                 <div class="p-4 border-b border-gray-200">
                     <div class="flex justify-between items-center">
                         <h3 class="text-lg font-medium text-gray-900">{{ $chart['title'] }}</h3>
+                        @if(empty(request('filter_value')))
                         <div class="flex space-x-2">
                         <a href="{{ route('history.display', [
                                 'history' => $chart['history'],
@@ -100,6 +101,7 @@
                                 <i class="fas fa-chart-pie"></i>
                             </a>
                         </div>
+                        @endif
                     </div>
                 </div>
                 <div class="p-4">
