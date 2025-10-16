@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Set database based on the current host
-        if (request()->getHost() === 'hasisto.com') {
+        if (request()->getHost() === 'hassisto.com') {
             // Update database configuration
             config(['database.connections.mysql.database' => 'proforma']);
             // Uncomment and update these if you need to change username/password
