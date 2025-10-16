@@ -483,6 +483,12 @@ class HistoryController extends Controller
         \Log::info('Complete SQL: ' . $sqlx);
         */
         $histories = $histories->get();
+
+        // If no histories found, redirect to dashboard
+        if ($histories->isEmpty()) {
+            return redirect()->route('dashboard');
+        }
+
         $charts = [];
         $errors = [];
 

@@ -106,7 +106,9 @@
                 </div>
                 <div class="p-4">
                     <div class="chart-container" style="position: relative; height: 300px;">
-                        <canvas id="{{ $chart['id'] }}"></canvas>
+                    <canvas id="{{ $chart['id'] }}" data-url="{{ route('history.subdashboard', ['history' => $chart['history']->id]) }}">
+
+                    </canvas>
                     </div>
                 </div>
             </div>
@@ -143,7 +145,7 @@
                     data: {
                         labels: @json($chart['labels']),
                         datasets: [{
-                            label: '{{ $chart['title'] }}',
+                           // label: '{{ $chart['title'] }}',
                             data: @json($chart['data']),
                             backgroundColor: [
                                 'rgba(54, 162, 235, 0.5)',

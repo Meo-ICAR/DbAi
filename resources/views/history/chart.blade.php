@@ -87,7 +87,7 @@
                     data: {
                         labels: chartData.labels,
                         datasets: [{
-                            label: chartData.title,
+                           // label: chartData.title,
                             data: chartData.data,
                             backgroundColor: [
                                 'rgba(54, 162, 235, 0.7)',
@@ -134,7 +134,7 @@
                                 position: 'top',
                             },
                             title: {
-                                display: true,
+                                display: false,
                                 text: chartData.title,
                                 font: {
                                     size: 16
