@@ -27,6 +27,11 @@ Route::prefix('history')->name('history.')->group(function () {
     Route::get('/{history}/chart', [HistoryController::class, 'chart'])->name('chart');
     Route::get('/{history}/chart-details', [HistoryController::class, 'chartDetails'])->name('chart-details');
     Route::post('/{history}/update-order', [HistoryController::class, 'updateOrder'])->name('update-order');
+    //Route::get('/{history}/subdashboard/{filter_column?}/{filter_value?}',
+    // //[HistoryController::class, 'subdashboard'])->name('subdashboard');
+    Route::get('/{history}/subdashboard/{filter_column?}/{filter_value?}', [HistoryController::class, 'subdashboard'])
+        ->where(['filter_value' => '.*'])
+        ->name('subdashboard');
 });
 
 // Dashboard Route

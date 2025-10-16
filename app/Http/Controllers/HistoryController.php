@@ -160,7 +160,7 @@ class HistoryController extends Controller
     {
         // Increment view counter
         $history->increment('nviewed');
-        
+
         // Check for export request first
         if ($request->has('export')) {
             return $this->exportToExcel($history, $request);
@@ -178,10 +178,24 @@ class HistoryController extends Controller
                 $sql = $sql->getValue();
             }
 
-            \Log::info('Executing SQL:', ['sql' => $sql]);
-
-            // Get and process results
-            $results = collect(DB::select($sql))->map(fn($item) => (array)$item);
+            // Apply filter_value if provided
+            if ($request->has('filter_value')) {
+                $filterValue = $request->query('filter_value');
+                $filterColumn = $request->query('filter_column', 'status'); // Default column if not specified
+                
+                // Add WHERE clause if not already present
+                if (stripos($sql, 'WHERE') === false) {
+                    $sql = rtrim(trim($sql), ';') . " WHERE $filterColumn = ?";
+                } else {
+                    $sql = rtrim(trim($sql), ';') . " AND $filterColumn = ?";
+                }
+                
+                \Log::info('Executing filtered SQL:', ['sql' => $sql, 'filter_value' => $filterValue]);
+                $results = collect(DB::select($sql, [$filterValue]))->map(fn($item) => (array)$item);
+            } else {
+                \Log::info('Executing SQL:', ['sql' => $sql]);
+                $results = collect(DB::select($sql))->map(fn($item) => (array)$item);
+            }
 
             // Apply sorting if needed
             if ($sortColumn && $results->isNotEmpty() && array_key_exists($sortColumn, $results->first())) {
@@ -259,7 +273,7 @@ class HistoryController extends Controller
     {
         // Increment view counter
         $history->increment('nviewed');
-        
+
         $chartData = null;
         $error = null;
 
@@ -401,6 +415,127 @@ class HistoryController extends Controller
     }
 
     /**
+     * Display the subdashboard with all charts that have dashboardorder > 0
+     */
+    public function subdashboard($historyId, $filter_column = null, $filter_value = null)
+    {
+        // If filter parameters are in the query string, use those instead
+        $filter_column = request()->query('filter_column', $filter_column);
+        $filter_value = request()->query('filter_value', $filter_value);
+
+        // Get all history items with masterquery = $history, ordered by slavedashboard
+        $histories = History::where('masterquery', '=', $historyId)
+            ->orderBy('slavedashboard');
+        // Log the SQL query
+        $historymaster = History::where('id', '=', $historyId)->first();
+        $titolo =  $historymaster->message.' - '.$filter_value;
+        \Log::info('Subdashboard query:', [
+
+            'bindings' =>   $histories->getBindings() ,
+            'filter_column' => $filter_column,
+            'filter_value' => $filter_value
+        ]);
+        $sqlx = $histories->toRawSql();
+        $histories = $histories->get();
+        \Log::info('Complete SQL: ' . $sqlx);
+        $charts = [];
+        $errors = [];
+
+        foreach ($histories as $history) {
+            try {
+                // Execute the query - convert the raw SQL to a string
+                $sql = $history->sqlstatement;
+                if ($sql instanceof \Illuminate\Database\Query\Expression) {
+                    $sql = $sql->getValue();
+                }
+                // Replace the parameter in the SQL with the filter value
+                if (!empty($filter_value)) {
+                    // Escape single quotes in the filter value
+                    $quotedValue = "'" .  $filter_value . "'";
+                    // Replace the first question mark with the quoted value
+                    $sql = preg_replace('/\?/', $quotedValue, $sql, 1);
+                }
+                /*
+                // Add WHERE condition if filter parameters are provided
+                if (!empty($filter_column) && $filter_value !== null) {
+                    $sql = rtrim(trim($sql), ';');
+
+                    // Check if the SQL already has a WHERE clause
+                    if (stripos($sql, 'WHERE') !== false) {
+                        // If WHERE exists, add AND condition
+                        $sql = "$sql AND $filter_column = ?";
+                    } else {
+                        // If no WHERE exists, add WHERE clause
+                        $sql = "$sql WHERE $filter_column = ?";
+                    }
+
+                    // Execute with parameter binding for security
+                    $results = collect(\DB::select($sql, [$filter_value]))
+                        ->map(function($item) {
+                            return (array)$item;
+                        })->toArray();
+                } else {
+
+                }
+                */
+                // Execute without filtering if no filter parameters provided
+                $results = collect(\DB::select($sql))
+                ->map(function($item) {
+                    return (array)$item;
+                })->toArray();
+                // Prepare chart data if we have results
+                if (!empty($results)) {
+                    $firstRow = $results[0];
+                    $columns = array_keys($firstRow);
+
+                    if (count($columns) >= 2) {
+                        $labels = [];
+                        $data = [];
+
+                        foreach ($results as $row) {
+                            $value = $row[$columns[1]] ?? null;
+                            $label = $row[$columns[0]] ?? '';
+
+                            if (is_numeric($value)) {
+                                $labels[] = (string)$label;
+                                $data[] = (float)$value;
+                            }
+                        }
+
+                        if (!empty($labels) && !empty($data)) {
+                            $charts[] = [
+                                'id' => 'chart-' . $history->id,
+                                'title' => $history->message,
+                                'type' => strtolower(explode(' ', $history->charttype)[0] ?? 'bar'),
+                                'labels' => $labels,
+                                'data' => $data,
+                                'history' => $history
+                            ];
+                            continue;
+                        }
+                    }
+                }
+
+                $errors[] = "Could not generate chart for: " . $history->message;
+
+            } catch (\Exception $e) {
+                $errors[] = "Error processing '{$history->message}': " . $e->getMessage();
+                \Log::error('Error in dashboard chart generation:', [
+                    'history_id' => $history->id,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+            }
+        }
+
+        return view('history.dashboard', [
+            'charts' => $charts,
+            'errors' => $errors,
+            'title' => $titolo
+        ]);
+    }
+
+    /**
      * Log or update a query in the history.
      */
     public static function logQuery($message, $sqlStatement, $chartType = 'Pie Chart')
@@ -430,7 +565,7 @@ class HistoryController extends Controller
     {
         $filterValue = $request->input('filter_value');
         $filterColumn = $request->input('filter_column');
-        
+
         // Find the first child history record that matches the filter
         $detailHistory = History::where('masterquery', $history->id)
             ->where('message', 'like', "%{$filterColumn}: {$filterValue}%")

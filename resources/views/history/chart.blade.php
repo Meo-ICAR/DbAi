@@ -62,7 +62,8 @@
                 </div>
             </div>
         @else
-            <canvas id="results-chart"></canvas>
+        <canvas id="results-chart" data-url="{{ route('history.subdashboard', ['history' => $history->id]) }}">
+        </canvas>
         @endif
     </div>
 
@@ -108,6 +109,24 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        onClick: (e, elements) => {
+                            const baseUrl = canvas.getAttribute('data-url');  // Alternative method
+                            if (!baseUrl) {
+                                    console.error('Error: data-url attribute is missing from the canvas.');
+                                    return;
+                            }
+                            console.log(baseUrl);
+                            if (elements.length > 0) {
+                                const elementIndex = elements[0].index;
+                                const label = chartData.labels[elementIndex];
+                                const value = chartData.data[elementIndex];
+                                const url = new URL(baseUrl);
+                                url.searchParams.append('filter_column', value || 'label');
+                                url.searchParams.append('filter_value', label);
+                                window.location.href = url.toString();
+                            }
+                        },
+
                         plugins: {
                             legend: {
                                 position: 'top',
@@ -118,7 +137,8 @@
                                 font: {
                                     size: 16
                                 }
-                            }
+                            },
+
                         },
                         animation: {
                             duration: 1000,
@@ -126,7 +146,8 @@
                         },
                         layout: {
                             padding: 20
-                        }
+                        },
+                        cursor: 'pointer'
                     }
                 });
             }

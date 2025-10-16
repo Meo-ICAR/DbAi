@@ -19,7 +19,7 @@
                         <a href="{{ url('/') }}" class="text-xl font-bold">Database Assistant</a>
                         <a href="{{ url('/chat') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Chat</a>
                         <a href="{{ url('/history') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Query History</a>
-                        <a href="{{ url('/dashboard') }}" class="bg-blue-700 px-3 py-2 rounded">Dashboard</a>
+                        <a href="{{ url('/dashboard') }}" class="{{ request()->is('dashboard*') ? 'bg-blue-700' : 'hover:bg-blue-700' }} px-3 py-2 rounded">Dashboard</a>
                     </div>
                     <div x-data="{ showInfo: false }">
                         <x-info-button page="dashboard" />
@@ -32,7 +32,7 @@
         <main class="container mx-auto px-4 py-6">
 <div class="container mx-auto px-4 py-6">
     <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+        <h1 class="text-3xl font-bold text-gray-800">{{ $title ?? 'Dashboard' }}</h1>
         <a href="{{ url('/history') }}" class="text-blue-600 hover:text-blue-800 flex items-center">
             <i class="fas fa-arrow-left mr-2"></i> Back to History
         </a>
@@ -156,7 +156,7 @@
                     },
                     options: (function() {
                         const isPieChart = '{{ $chart['type'] }}'.toLowerCase().includes('pie') || '{{ $chart['type'] }}'.toLowerCase().includes('doughnut');
-                        
+
                         return {
                             responsive: true,
                             maintainAspectRatio: false,
