@@ -33,9 +33,11 @@
 <div class="container mx-auto px-4 py-6">
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-3xl font-bold text-gray-800">{{ $title ?? 'Dashboard' }}</h1>
-        <a href="{{ url('/history') }}" class="text-blue-600 hover:text-blue-800 flex items-center">
-            <i class="fas fa-arrow-left mr-2"></i> Back to History
+        @if(!empty( $title))
+        <a href="{{ url('/dashboard') }}" class="text-blue-600 hover:text-blue-800 flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
         </a>
+        @endif
     </div>
 
     @if(empty($charts) && empty($errors))
@@ -172,6 +174,24 @@
                         return {
                             responsive: true,
                             maintainAspectRatio: false,
+                            onClick: (e, elements) => {
+                                const canvasx = e.chart.canvas.id;
+                                const baseUrl = document.getElementById(canvasx).getAttribute('data-url');  // Alternative method
+                                if (!baseUrl) {
+                                        console.error('Error: data-url attribute is missing from the canvas.');
+                                        return;
+                                }
+                                console.log(baseUrl);
+                                if (elements.length > 0) {
+                                    const elementIndex = elements[0].index;
+                                    const label = e.chart.data.labels[elementIndex];
+                                    const value = e.chart.data.datasets[0].data[elementIndex];
+                                    const url = new URL(baseUrl);
+                                    url.searchParams.append('filter_column', value);
+                                    url.searchParams.append('filter_value', label);
+                                    window.location.href = url.toString();
+                                }
+                            },
                             animation: {
                                 duration: 1000,
                                 easing: 'easeInOutQuad'
