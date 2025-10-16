@@ -156,20 +156,24 @@ class HistoryController extends Controller
     /**
      * Display and execute a history query.
      */
-    public function display(History $history, Request $request)
+    public function display(History $history, Request $request, $filter_column = null, $filter_value = null)
     {
         // Increment view counter
         $history->increment('nviewed');
 
         // Check for export request first
         if ($request->has('export')) {
-            return $this->exportToExcel($history, $request);
+            return $this->exportToExcel($history, $request,$filter_column , $filter_value);
         }
 
         $results = [];
         $error = null;
         $sortColumn = $request->input('sort');
         $sortDirection = $request->input('direction', 'asc');
+
+        // Get filter values from parameters or query string
+        $filter_column = $request->query('filter_column', $filter_column);
+        $filter_value = $request->query('filter_value', $filter_value);
 
         try {
             // Execute the query
@@ -182,14 +186,15 @@ class HistoryController extends Controller
             if ($request->has('filter_value')) {
                 $filterValue = $request->query('filter_value');
                 $filterColumn = $request->query('filter_column', 'status'); // Default column if not specified
-                
+
                 // Add WHERE clause if not already present
-                if (stripos($sql, 'WHERE') === false) {
-                    $sql = rtrim(trim($sql), ';') . " WHERE $filterColumn = ?";
-                } else {
-                    $sql = rtrim(trim($sql), ';') . " AND $filterColumn = ?";
+                if (!empty($filter_value)) {
+                    // Escape single quotes in the filter value
+                    $quotedValue = "'" .  $filter_value . "'";
+                    // Replace the first question mark with the quoted value
+                    $sql = preg_replace('/\?/', $quotedValue, $sql, 1);
                 }
-                
+
                 \Log::info('Executing filtered SQL:', ['sql' => $sql, 'filter_value' => $filterValue]);
                 $results = collect(DB::select($sql, [$filterValue]))->map(fn($item) => (array)$item);
             } else {
@@ -220,7 +225,7 @@ class HistoryController extends Controller
         ]);
     }
 
-    private function exportToExcel($history, $request)
+    private function exportToExcel($history, $request,$filter_column = null, $filter_value = null)
     {
         try {
             // Execute the query
@@ -228,9 +233,24 @@ class HistoryController extends Controller
             if ($sql instanceof \Illuminate\Database\Query\Expression) {
                 $sql = $sql->getValue();
             }
+            if ($request->has('filter_value')) {
+                $filterValue = $request->query('filter_value');
+                $filterColumn = $request->query('filter_column', 'status'); // Default column if not specified
 
-            // Get and process results
-            $results = collect(DB::select($sql))->map(fn($item) => (array)$item);
+                // Add WHERE clause if not already present
+                if (!empty($filter_value)) {
+                    // Escape single quotes in the filter value
+                    $quotedValue = "'" .  $filter_value . "'";
+                    // Replace the first question mark with the quoted value
+                    $sql = preg_replace('/\?/', $quotedValue, $sql, 1);
+                }
+
+                \Log::info('Executing filtered SQL:', ['sql' => $sql, 'filter_value' => $filterValue]);
+                $results = collect(DB::select($sql, [$filterValue]))->map(fn($item) => (array)$item);
+            } else {
+                \Log::info('Executing SQL:', ['sql' => $sql]);
+                $results = collect(DB::select($sql))->map(fn($item) => (array)$item);
+            }
 
             // Apply sorting if needed
             if ($sortColumn = $request->input('sort')) {
@@ -260,7 +280,7 @@ class HistoryController extends Controller
     {
         $clonedHistory = $history->replicate();
         $clonedHistory->save();
-        $clonedHistory->message =  $history->message.' clone '.$history->id;
+        $clonedHistory->message = $history->message . ' clone ' . $history->id;
         $clonedHistory->save();
         return redirect()->route('history.index')
             ->with('success', 'History entry cloned successfully.');
@@ -269,13 +289,17 @@ class HistoryController extends Controller
     /**
      * Display a chart for the history query.
      */
-    public function chart(History $history)
+    public function chart(History $history, Request $request, $filter_column = null, $filter_value = null)
     {
         // Increment view counter
         $history->increment('nviewed');
 
         $chartData = null;
         $error = null;
+
+        // Get filter values from parameters or query string
+        $filter_column = $request->query('filter_column', $filter_column);
+        $filter_value = $request->query('filter_value', $filter_value);
 
         try {
             // Execute the query - convert the raw SQL to a string
@@ -284,12 +308,29 @@ class HistoryController extends Controller
                 $sql = $sql->getValue();
             }
 
-            \Log::info('Executing SQL for chart:', ['sql' => $sql]);
+            // Apply filter if provided
+            if ($filter_value !== null) {
+                $sql = rtrim(trim($sql), ';');
+                if (!empty($filter_value)) {
+                    // Escape single quotes in the filter value
+                    $quotedValue = "'" .  $filter_value . "'";
+                    // Replace the first question mark with the quoted value
+                    $sql = preg_replace('/\?/', $quotedValue, $sql, 1);
+                }
+                $results = collect(DB::select($sql, [$filter_value]))
+                    ->map(fn($item) => (array)$item)
+                    ->toArray();
+            } else {
+                $results = collect(DB::select($sql))
+                    ->map(fn($item) => (array)$item)
+                    ->toArray();
+            }
 
-            // Execute the query and convert results to array
-            $results = collect(\DB::select($sql))->map(function($item) {
-                return (array)$item;
-            })->toArray();
+            \Log::info('Executing SQL for chart:', [
+                'sql' => $sql,
+                'filter_column' => $filter_column,
+                'filter_value' => $filter_value
+            ]);
 
             // Prepare chart data if we have results
             if (!empty($results)) {
@@ -333,7 +374,9 @@ class HistoryController extends Controller
         return view('history.chart', [
             'chartData' => $chartData,
             'error' => $error,
-            'history' => $history
+            'history' => $history,
+            'filter_column' => $filter_column,
+            'filter_value' => $filter_value
         ]);
     }
 
@@ -435,9 +478,11 @@ class HistoryController extends Controller
             'filter_column' => $filter_column,
             'filter_value' => $filter_value
         ]);
+        /*
         $sqlx = $histories->toRawSql();
-        $histories = $histories->get();
         \Log::info('Complete SQL: ' . $sqlx);
+        */
+        $histories = $histories->get();
         $charts = [];
         $errors = [];
 

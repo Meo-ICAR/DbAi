@@ -22,13 +22,32 @@ Route::prefix('history')->name('history.')->group(function () {
     Route::put('/{history}', [HistoryController::class, 'update'])->name('update');
     Route::delete('/{history}', [HistoryController::class, 'destroy'])->name('destroy');
     Route::get('/{history}', [HistoryController::class, 'show'])->name('show');
-    Route::get('/{history}/display', [HistoryController::class, 'display'])->name('display');
+    Route::get('/{history}/display/{filter_column?}/{filter_value?}', [HistoryController::class, 'display'])
+     //   ->where(['filter_value' => '.*'])
+        ->name('display');
+
+    Route::get('/{history}/chart/{filter_column?}/{filter_value?}', [HistoryController::class, 'chart'])
+      //  ->where(['filter_value' => '.*'])
+        ->name('chart');
+
     Route::post('/{history}/clone', [HistoryController::class, 'clone'])->name('clone');
-    Route::get('/{history}/chart', [HistoryController::class, 'chart'])->name('chart');
     Route::get('/{history}/chart-details', [HistoryController::class, 'chartDetails'])->name('chart-details');
     Route::post('/{history}/update-order', [HistoryController::class, 'updateOrder'])->name('update-order');
-    //Route::get('/{history}/subdashboard/{filter_column?}/{filter_value?}',
-    // //[HistoryController::class, 'subdashboard'])->name('subdashboard');
+
+    // Export to Excel route with filter parameters
+    Route::get('/{history}/export/{filter_column?}/{filter_value?}', function (\App\Models\History $history, $filter_column = null, $filter_value = null) {
+        $request = request();
+        $request->merge([
+            'export' => true,
+            'filter_column' => $filter_column,
+            'filter_value' => $filter_value
+        ]);
+        return app(HistoryController::class)->display($history, $request, $filter_column, $filter_value);
+    })
+    //->where(['filter_value' => '.*'])
+    ->name('export');
+
+    // Subdashboard route
     Route::get('/{history}/subdashboard/{filter_column?}/{filter_value?}', [HistoryController::class, 'subdashboard'])
         ->where(['filter_value' => '.*'])
         ->name('subdashboard');

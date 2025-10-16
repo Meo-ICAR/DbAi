@@ -81,12 +81,20 @@
                     <div class="flex justify-between items-center">
                         <h3 class="text-lg font-medium text-gray-900">{{ $chart['title'] }}</h3>
                         <div class="flex space-x-2">
-                            <a href="{{ route('history.display', $chart['history']) }}"
+                        <a href="{{ route('history.display', [
+                                'history' => $chart['history'],
+                                'filter_column' => request('filter_column'),
+                                'filter_value' => request('filter_value')
+                            ]) }}"
                                class="text-gray-400 hover:text-gray-600"
                                title="View Table">
                                 <i class="fas fa-table"></i>
                             </a>
-                            <a href="{{ route('history.chart', $chart['history']) }}"
+                            <a href="{{ route('history.chart', [
+                                'history' => $chart['history'],
+                                'filter_column' => request('filter_column'),
+                                'filter_value' => request('filter_value')
+                            ]) }}"
                                class="text-gray-400 hover:text-blue-600"
                                title="View Full Chart">
                                 <i class="fas fa-chart-pie"></i>
