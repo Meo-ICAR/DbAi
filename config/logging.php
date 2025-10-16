@@ -94,6 +94,15 @@ return [
             'processors' => [PsrLogMessageProcessor::class],
         ],
 
+        'debug' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/debug.log'),
+            'level' => 'debug',
+            'days' => 7,
+            'permission' => 0664,
+            'replace_placeholders' => true,
+        ],
+
         'stderr' => [
             'driver' => 'monolog',
             'level' => env('LOG_LEVEL', 'debug'),

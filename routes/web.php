@@ -25,6 +25,7 @@ Route::prefix('history')->name('history.')->group(function () {
     Route::get('/{history}/display', [HistoryController::class, 'display'])->name('display');
     Route::post('/{history}/clone', [HistoryController::class, 'clone'])->name('clone');
     Route::get('/{history}/chart', [HistoryController::class, 'chart'])->name('chart');
+    Route::get('/{history}/chart-details', [HistoryController::class, 'chartDetails'])->name('chart-details');
     Route::post('/{history}/update-order', [HistoryController::class, 'updateOrder'])->name('update-order');
 });
 

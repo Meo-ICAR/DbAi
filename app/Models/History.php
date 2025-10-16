@@ -12,12 +12,31 @@ class History extends Model
         'sqlstatement',
         'charttype',
         'dashboardorder',
-        'nviewed'
+        'nviewed',
+        'masterquery',
+        'slavedashboard'
     ];
 
     protected $casts = [
         'submission_date' => 'datetime',
+        'slavedashboard' => 'integer',
     ];
+
+    /**
+     * Get the master query that this history record belongs to.
+     */
+    public function master()
+    {
+        return $this->belongsTo(History::class, 'masterquery');
+    }
+
+    /**
+     * Get the slave queries for this master query.
+     */
+    public function slaves()
+    {
+        return $this->hasMany(History::class, 'masterquery');
+    }
 
     /**
      * Scope a query to find a history by SQL statement.

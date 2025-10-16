@@ -120,6 +120,8 @@ class HistoryController extends Controller
             'sqlstatement' => 'required|string',
             'charttype' => 'nullable|string|max:50',
             'dashboardorder' => 'nullable|integer',
+            'masterquery' => 'nullable|exists:histories,id',
+            'slavedashboard' => 'nullable|integer|min:0|max:100',
         ]);
 
         $updateData = [
@@ -127,15 +129,20 @@ class HistoryController extends Controller
             'sqlstatement' => $validated['sqlstatement'],
             'charttype' => $validated['charttype'] ?? 'Pie Chart',
             'submission_date' => now(),
+            'masterquery' => $validated['masterquery'] ?? null,
+            'slavedashboard' => $validated['slavedashboard'] ?? 0,
         ];
+
         // Only update dashboardorder if it's present in the request
         if (array_key_exists('dashboardorder', $validated)) {
             $history->dashboardorder = $validated['dashboardorder'];
         }
+
         $history->update($updateData);
-                return redirect()->route('history.index')
-                    ->with('success', 'History entry updated successfully.');
-            }
+
+        return redirect()->route('history.index')
+            ->with('success', 'History entry updated successfully.');
+    }
 
     /**
      */
@@ -396,13 +403,15 @@ class HistoryController extends Controller
     /**
      * Log or update a query in the history.
      */
-    public static function logQuery($message, $sqlStatement, $chartType = 'Pie Chart') {
+    public static function logQuery($message, $sqlStatement, $chartType = 'Pie Chart')
+    {
         $history = History::where('sqlstatement', $sqlStatement)->first();
 
         if ($history) {
             $history->update([
                 'submission_date' => now(),
-              //  'charttype' => $chartType,
+                'charttype' => $chartType,
+                'submission_date' => now(),
             ]);
         } else {
             History::create([
@@ -412,5 +421,39 @@ class HistoryController extends Controller
                 'submission_date' => now(),
             ]);
         }
+    }
+
+    /**
+     * Display detailed chart data when a chart segment is clicked
+     */
+    public function chartDetails(History $history, Request $request)
+    {
+        $filterValue = $request->input('filter_value');
+        $filterColumn = $request->input('filter_column');
+        
+        // Find the first child history record that matches the filter
+        $detailHistory = History::where('masterquery', $history->id)
+            ->where('message', 'like', "%{$filterColumn}: {$filterValue}%")
+            ->first();
+
+        if (!$detailHistory) {
+            return back()->with('error', 'No detailed data found for this selection.');
+        }
+
+        // Execute the query to get the detailed data
+        try {
+            $results = DB::select(DB::raw($detailHistory->sqlstatement));
+            $results = json_decode(json_encode($results), true);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error executing query: ' . $e->getMessage());
+        }
+
+        return view('history.chart-details', [
+            'history' => $detailHistory,
+            'results' => $results,
+            'parentHistory' => $history,
+            'filterValue' => $filterValue,
+            'filterColumn' => $filterColumn
+        ]);
     }
 }
