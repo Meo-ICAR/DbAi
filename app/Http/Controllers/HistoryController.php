@@ -281,6 +281,8 @@ class HistoryController extends Controller
         $clonedHistory = $history->replicate();
         $clonedHistory->save();
         $clonedHistory->message = $history->message . ' clone ' . $history->id;
+        $clonedHistory->masterquery = $history->id;
+        $clonedHistory->slavedashboard  = $clonedHistory->id;
         $clonedHistory->save();
         return redirect()->route('history.index')
             ->with('success', 'History entry cloned successfully.');
@@ -432,7 +434,8 @@ class HistoryController extends Controller
                                 'type' => strtolower(explode(' ', $history->charttype)[0] ?? 'bar'),
                                 'labels' => $labels,
                                 'data' => $data,
-                                'history' => $history
+                                'history' => $history,
+                                'data-has-slaves' => $history->slaves()->exists()
                             ];
                             continue;
                         }
@@ -560,7 +563,8 @@ class HistoryController extends Controller
                                 'type' => strtolower(explode(' ', $history->charttype)[0] ?? 'bar'),
                                 'labels' => $labels,
                                 'data' => $data,
-                                'history' => $history
+                                'history' => $history,
+                                'data-has-slaves' => $history->slaves()->exists()
                             ];
                             continue;
                         }
@@ -605,6 +609,7 @@ class HistoryController extends Controller
                 'sqlstatement' => $sqlStatement,
                 'charttype' => $chartType,
                 'submission_date' => now(),
+                'database_name' => DB::getDatabaseName()
             ]);
         }
     }

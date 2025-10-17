@@ -82,8 +82,13 @@
                 <div class="p-4 border-b border-gray-200">
                     <div class="flex justify-between items-center">
                         <h3 class="text-lg font-medium text-gray-900">{{ $chart['title'] }}</h3>
-                        @if(empty(request('filter_value')))
                         <div class="flex space-x-2">
+                        @if($chart['data-has-slaves'])
+                        <i class="fas fa-search-plus" class="text-gray-400 hover:text-gray-600"
+                        title="Click on value for details"></i>
+                        @endif
+                        @if(empty(request('filter_value')))
+
                         <a href="{{ route('history.display', [
                                 'history' => $chart['history'],
                                 'filter_column' => request('filter_column'),
@@ -102,14 +107,18 @@
                                title="View Full Chart">
                                 <i class="fas fa-chart-pie"></i>
                             </a>
-                        </div>
+
                         @endif
+                        </div>
                     </div>
                 </div>
                 <div class="p-4">
                     <div class="chart-container" style="position: relative; height: 300px;">
+                    @if($chart['data-has-slaves'])
                     <canvas id="{{ $chart['id'] }}" data-url="{{ route('history.subdashboard', ['history' => $chart['history']->id]) }}">
-
+                    @else
+                    <canvas id="{{ $chart['id'] }}" >
+                    @endif
                     </canvas>
                     </div>
                 </div>
@@ -121,24 +130,13 @@
 </main>
     </div>
 
-    <!-- Debug Info (temporary) -->
-    @if(!empty($charts) && config('app.debug'))
-    <div class="container mx-auto px-4 py-6">
-        <h3 class="text-lg font-semibold mb-2">Debug Information:</h3>
-        <pre class="bg-gray-100 p-4 rounded overflow-auto text-xs">{{ json_encode($charts, JSON_PRETTY_PRINT) }}</pre>
-    </div>
-    @endif
-
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM fully loaded, initializing charts...');
         @foreach($charts as $chart)
             try {
-                console.log('Initializing chart:', '{{ $chart['id'] }}');
                 const ctx{{ $loop->index }} = document.getElementById('{{ $chart['id'] }}');
 
                 if (!ctx{{ $loop->index }}) {
-                    console.error('Canvas element not found for chart:', '{{ $chart['id'] }}');
                     return;
                 }
 
@@ -174,11 +172,19 @@
                         return {
                             responsive: true,
                             maintainAspectRatio: false,
+
+                            onHover: (e, chartElement) => {
+                                const canvasx = e.chart.canvas.id;
+                                const baseUrl = document.getElementById(canvasx).getAttribute('data-url');  // Alternative method
+                                if (baseUrl) {
+                                    e.native.target.style.cursor = chartElement[0] ? 'default':'zoom-in';
+                                }
+                            },
                             onClick: (e, elements) => {
                                 const canvasx = e.chart.canvas.id;
                                 const baseUrl = document.getElementById(canvasx).getAttribute('data-url');  // Alternative method
                                 if (!baseUrl) {
-                                        console.error('Error: data-url attribute is missing from the canvas.');
+                                    //    console.error('Error: data-url attribute is missing from the canvas.');
                                         return;
                                 }
                                 console.log(baseUrl);
@@ -247,29 +253,10 @@
                     })()
                 };
 
-                console.log('Chart data for', '{{ $chart['id'] }}', chartData);
-
                 // Initialize the chart
                 new Chart(ctx{{ $loop->index }}, chartData);
-                console.log('Chart initialized successfully:', '{{ $chart['id'] }}');
-
             } catch (error) {
-                console.error('Error initializing chart {{ $chart['id'] }}:', error);
-                const container = document.getElementById('{{ $chart['id'] }}').parentNode;
-                container.innerHTML = `
-                    <div class="bg-red-50 border-l-4 border-red-400 p-4">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <i class="fas fa-exclamation-circle text-red-400"></i>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm text-red-700">
-                                    Error loading chart: ${error.message}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                // Silently handle chart initialization errors
             }
         @endforeach
     });

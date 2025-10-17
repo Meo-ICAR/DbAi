@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class History extends Model
 {
+    protected $connection = 'dbai'; // Specifica il nome della seconda connessione
+
     protected $fillable = [
         'submission_date',
         'message',
@@ -14,7 +16,8 @@ class History extends Model
         'dashboardorder',
         'nviewed',
         'masterquery',
-        'slavedashboard'
+        'slavedashboard',
+        'database_name'  // Add this line
     ];
 
     protected $casts = [
