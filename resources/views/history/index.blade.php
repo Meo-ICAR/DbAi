@@ -143,12 +143,21 @@
                                             {{ $history->nviewed }}
                                         </span>
                                     </td>
+                                    @if($history->charttype === 'Table')
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <a href="{{ url("/history/{$history->id}/display") }}"
                                            class="text-green-600 hover:text-green-900 mr-3"
                                            title="Execute query">
-                                            <i class="fas fa-play"></i>
+                                            <i class="fas fa-list"></i>
                                         </a>
+                                    @else
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <a href="{{ url("/history/{$history->id}/chart") }}"
+                                           class="text-green-600 hover:text-green-900 mr-3"
+                                           title="Execute query">
+                                            <i class="fas fa-chart"></i>
+                                        </a>
+                                    @endif
                                         <a href="{{ url("/history/{$history->id}/edit") }}"
                                            class="text-indigo-600 hover:text-indigo-900 mr-3"
                                            title="Edit query">
