@@ -280,8 +280,10 @@ class HistoryController extends Controller
     {
         $clonedHistory = $history->replicate();
         $clonedHistory->save();
-        $clonedHistory->message = $history->message . ' clone ' . $history->id;
-        $clonedHistory->masterquery = $history->id;
+        $clonedHistory->message = $history->message . ' (' . $history->id . ')'s;
+        if($history->masterquery === null){
+          $clonedHistory->masterquery = $history->id;
+        }
         $clonedHistory->slavedashboard  = $clonedHistory->id;
         $clonedHistory->save();
         return redirect()->route('history.index')
