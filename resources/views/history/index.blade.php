@@ -144,27 +144,31 @@
                                         </span>
                                     </td>
                                     @if($history->masterquery !== null)
-                                    @if($history->charttype === 'Table')
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    @if($history->charttype === 'Table')
+
                                         <a href="{{ url("/history/{$history->id}/display") }}"
                                            class="text-green-600 hover:text-green-900 mr-3"
                                            title="Execute query">
                                             <i class="fas fa-table"></i>
                                         </a>
                                     @else
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+
                                         <a href="{{ url("/history/{$history->id}/chart") }}"
                                            class="text-green-600 hover:text-green-900 mr-3"
                                            title="View graph">
                                             <i class="fas fa-chart-pie"></i>
                                         </a>
                                         @endif
+
                                     @endif
+
                                         <a href="{{ url("/history/{$history->id}/edit") }}"
                                            class="text-indigo-600 hover:text-indigo-900 mr-3"
                                            title="Edit query">
                                             <i class="fas fa-edit"></i>
                                         </a>
+                                        </td>
                                         <form action="{{ route('history.clone', $history) }}" method="POST" class="inline">
                                             @csrf
                                             <button type="submit"
