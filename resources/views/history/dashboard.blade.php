@@ -213,8 +213,8 @@
                                     }
                                 },
                                 title: {
-                                    display: true,
-                                    text: '{{ $chart['title'] }}',
+                                    display: false,
+                                    text: '{{ $chart['title'].' --'}}',
                                     font: {
                                         size: 16
                                     },

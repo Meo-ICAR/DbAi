@@ -1,52 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chart: {{ $history->message }}</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .chart-container {
-            flex: 1;
-            position: relative;
-            width: 100%;
-            min-height: 400px;
-        }
-        #results-chart {
-            width: 100% !important;
-            height: 100% !important;
-        }
-    </style>
-</head>
-<body class="bg-gray-100">
-    <div class="bg-white shadow-sm py-4 px-6 border-b border-gray-200">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-semibold text-gray-900">{{ $history->message }}</h1>
+@php
+    $page = 'history-chart';
+@endphp
+
+@extends('history.layout')
+
+@section('content')
+<div class="container mx-auto max-w-6xl p-6">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">{{ $history->message }}</h1>
             <div class="flex items-center space-x-4">
-                <select id="chart-type" class="rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+            <select id="chart-type" class="rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     <option value="bar" {{ str_contains(strtolower($history->charttype), 'bar') ? 'selected' : '' }}>Bar Chart</option>
                     <option value="line" {{ str_contains(strtolower($history->charttype), 'line') ? 'selected' : '' }}>Line Chart</option>
                     <option value="pie" {{ str_contains(strtolower($history->charttype), 'pie') ? 'selected' : '' }}>Pie Chart</option>
                     <option value="doughnut" {{ str_contains(strtolower($history->charttype), 'doughnut') ? 'selected' : '' }}>Doughnut Chart</option>
                 </select>
-                <a href="{{ url("/history/{$history->id}/display") }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                    View Full Details
-                </a>
-                <a href="{{ url('/history') }}" class="text-blue-600 hover:text-blue-800 flex items-center">
+            <a href="{{ url("/history/{$history->id}/display") }}"
+                       class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                        <i class="fas fa-table mr-2"></i> View Table
+                    </a>
+                    <a href="{{ url('/history') }}"
+                   class="text-blue-600 hover:text-blue-800 flex items-center">
                     <i class="fas fa-arrow-left mr-2"></i> Back to History
                 </a>
             </div>
         </div>
-    </div>
-
     <div class="chart-container p-6">
         @if($error)
             <div class="bg-red-50 border-l-4 border-red-400 p-4">
@@ -175,5 +154,6 @@
         });
     </script>
     @endif
-</body>
-</html>
+    </div>
+</div>
+@endsection

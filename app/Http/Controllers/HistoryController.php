@@ -72,6 +72,7 @@ class HistoryController extends Controller
             'sqlstatement' => $validated['sqlstatement'],
             'charttype' => $validated['charttype'] ?? 'Pie Chart',
             'submission_date' => now(),
+            'database_name' => DB::getDatabaseName()
         ]);
 
         return redirect()->route('history.index')
@@ -131,6 +132,7 @@ class HistoryController extends Controller
             'submission_date' => now(),
             'masterquery' => $validated['masterquery'] ?? null,
             'slavedashboard' => $validated['slavedashboard'] ?? 0,
+            'database_name' => DB::getDatabaseName()
         ];
 
         // Only update dashboardorder if it's present in the request
@@ -604,6 +606,7 @@ class HistoryController extends Controller
                 'submission_date' => now(),
                 'charttype' => $chartType,
                 'submission_date' => now(),
+                'database_name' => DB::getDatabaseName()
             ]);
         } else {
             History::create([
