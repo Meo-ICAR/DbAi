@@ -154,7 +154,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <a href="{{ url("/history/{$history->id}/chart") }}"
                                            class="text-green-600 hover:text-green-900 mr-3"
-                                           title="Execute query">
+                                           title="View graph">
                                             <i class="fas fa-chart-pie"></i>
                                         </a>
                                     @endif
