@@ -3,10 +3,26 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Scopes\DatabaseScope; // Importa lo Scope
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 
 class History extends Model
 {
+    use HasFactory;
+
     protected $connection = 'dbai'; // Specifica il nome della seconda connessione
+
+    /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted(): void
+    {
+        // Applica il nostro scope globale
+        static::addGlobalScope(new DatabaseScope);
+    }
 
     protected $fillable = [
         'submission_date',
