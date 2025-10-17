@@ -280,7 +280,7 @@ class HistoryController extends Controller
     {
         $clonedHistory = $history->replicate();
         $clonedHistory->save();
-        $clonedHistory->message = $history->message . ' (' . $history->id . ')'s;
+        $clonedHistory->message = $history->message . ' (' . $history->id . ')';
         if($history->masterquery === null){
           $clonedHistory->masterquery = $history->id;
         }
