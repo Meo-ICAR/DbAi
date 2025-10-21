@@ -1,57 +1,41 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ChatController;
-use App\Http\Controllers\HistoryController;
+
+require __DIR__.'/auth.php';
 
 Route::get('/', function () {
-    return redirect()->route('chat');
+    return view('welcome');
 });
 
-// Chat Interface Routes
-Route::get('/chat', [ChatController::class, 'index'])->name('chat');
-Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
-Route::get('/chat/chart', [ChatController::class, 'showChart'])->name('chat.chart');
+Route::get('/dashboard', [\App\Http\Controllers\HistoryController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('history.dashboard');
 
-// History Routes
-Route::prefix('history')->name('history.')->group(function () {
-    Route::get('/', [HistoryController::class, 'index'])->name('index');
-    Route::get('/create', [HistoryController::class, 'create'])->name('create');
-    Route::post('/', [HistoryController::class, 'store'])->name('store');
-    Route::get('/{history}/edit', [HistoryController::class, 'edit'])->name('edit');
-    Route::put('/{history}', [HistoryController::class, 'update'])->name('update');
-    Route::delete('/{history}', [HistoryController::class, 'destroy'])->name('destroy');
-    Route::get('/{history}', [HistoryController::class, 'show'])->name('show');
-    Route::get('/{history}/display/{filter_column?}/{filter_value?}', [HistoryController::class, 'display'])
-     //   ->where(['filter_value' => '.*'])
-        ->name('display');
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/{history}/chart/{filter_column?}/{filter_value?}', [HistoryController::class, 'chart'])
-      //  ->where(['filter_value' => '.*'])
-        ->name('chart');
+    // Chat Routes
+    Route::get('/chat', [\App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
+    Route::post('/chat/send', [\App\Http\Controllers\ChatController::class, 'sendMessage'])->name('chat.send');
 
-    Route::post('/{history}/clone', [HistoryController::class, 'clone'])->name('clone');
-    Route::get('/{history}/chart-details', [HistoryController::class, 'chartDetails'])->name('chart-details');
-    Route::post('/{history}/update-order', [HistoryController::class, 'updateOrder'])->name('update-order');
+    // History Routes
+    Route::resource('history', \App\Http\Controllers\HistoryController::class);
 
-    // Export to Excel route with filter parameters
-    Route::get('/{history}/export/{filter_column?}/{filter_value?}', function (\App\Models\History $history, $filter_column = null, $filter_value = null) {
-        $request = request();
-        $request->merge([
-            'export' => true,
-            'filter_column' => $filter_column,
-            'filter_value' => $filter_value
-        ]);
-        return app(HistoryController::class)->display($history, $request, $filter_column, $filter_value);
-    })
-    //->where(['filter_value' => '.*'])
-    ->name('export');
-
-    // Subdashboard route
-    Route::get('/{history}/subdashboard/{filter_column?}/{filter_value?}', [HistoryController::class, 'subdashboard'])
-        ->where(['filter_value' => '.*'])
-        ->name('subdashboard');
+    // Additional history routes
+    Route::get('history/{history}/display', [\App\Http\Controllers\HistoryController::class, 'display'])->name('history.display');
+    Route::get('history/{history}/chart', [\App\Http\Controllers\HistoryController::class, 'chart'])->name('history.chart');
+    Route::get('history/{history}/chart-details', [\App\Http\Controllers\HistoryController::class, 'chartDetails'])->name('history.chart-details');
+    Route::get('history/{history}/export', [\App\Http\Controllers\HistoryController::class, 'export'])->name('history.export');
+    Route::get('history/{history}/subdashboard/{filter_column?}/{filter_value?}', [\App\Http\Controllers\HistoryController::class, 'subdashboard'])->name('history.subdashboard');
+    Route::post('history/{history}/clone', [\App\Http\Controllers\HistoryController::class, 'clone'])->name('history.clone');
 });
 
-// Dashboard Route
-Route::get('/dashboard', [HistoryController::class, 'dashboard'])->name('dashboard');
+
+// Social Auth Routes
+Route::get('/auth/{provider}', [App\Http\Controllers\Auth\SocialAuthController::class, 'redirectToProvider'])
+    ->name('auth.social');
+
+Route::get('/auth/{provider}/callback', [App\Http\Controllers\Auth\SocialAuthController::class, 'handleProviderCallback'])
+    ->name('auth.social.callback');
