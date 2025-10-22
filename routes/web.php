@@ -20,6 +20,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/chat', [\App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
     Route::post('/chat/send', [\App\Http\Controllers\ChatController::class, 'sendMessage'])->name('chat.send');
 
+    // Company Management Routes
+    Route::resource('companies', \App\Http\Controllers\Admin\CompanyController::class)->names('admin.companies');
+    
     // History Routes
     Route::resource('history', \App\Http\Controllers\HistoryController::class);
 

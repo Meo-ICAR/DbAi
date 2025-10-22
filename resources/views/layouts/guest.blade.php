@@ -16,9 +16,9 @@
     </head>
     <body class="font-sans text-gray-900 antialiased">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+            <div class="mb-6">
+                <a href="/" class="flex items-center">
+                    <img src="{{ asset('images/dbai_logo.jpg') }}" alt="DbAI Logo" class="h-16 w-auto">
                 </a>
             </div>
 

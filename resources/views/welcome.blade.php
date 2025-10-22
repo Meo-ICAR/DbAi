@@ -13,7 +13,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16 items-center">
             <div class="flex items-center">
-                <span class="text-xl font-bold text-gray-900">{{ config('app.name', 'DbAI') }}</span>
+                <img src="{{ asset('images/dbai_logo.jpg') }}" alt="DbAI Logo" class="h-10 w-auto">
             </div>
             <div class="flex items-center space-x-4">
                 @auth
@@ -43,7 +43,7 @@
                 <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
                     <div class="sm:text-center lg:text-left">
                         <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                            <span class="block">Database Management</span>
+                            <span class="block">Management Dashboards</span>
                             <span class="block text-blue-600">Powered by AI</span>
                         </h1>
                         <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
@@ -65,9 +65,9 @@
                 </main>
             </div>
         </div>
-        <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-            <img class="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full" src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2850&q=80" alt="Database visualization">
-        </div>
+        <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 lg:mr-5">
+    <img class="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full" src="{{ asset('images/home-banner.jpg') }}">
+</div>
     </div>
 
     <!-- Features Section -->
@@ -99,7 +99,7 @@
                             </svg>
                         </div>
                         <p class="ml-16 text-lg leading-6 font-medium text-gray-900">Natural Language</p>
-                        <p class="mt-2 ml-16 text-base text-gray-500">Use simple English to query your database without writing SQL.</p>
+                        <p class="mt-2 ml-16 text-base text-gray-500">Use simple language to query your database without writing SQL.</p>
                     </div>
 
                     <div class="relative">
