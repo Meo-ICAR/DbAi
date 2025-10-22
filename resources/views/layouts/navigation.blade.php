@@ -5,17 +5,31 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('history.dashboard') }}">
+                    <a href="{{ route('dashboard') }}">
                         <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('history.dashboard')" :active="request()->routeIs('history.dashboard')">
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
+            </div>
+
+            <!-- Settings Dropdown -->
+            <!-- Navigation Links -->
+            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                    {{ __('Utenti') }}
+                </x-nav-link>
+                <x-nav-link :href="route('admin.companies.index')" :active="request()->routeIs('admin.companies.*')">
+                    {{ __('Aziende') }}
+                </x-nav-link>
+                <x-nav-link :href="route('admin.users.roles.index')" :active="request()->routeIs('admin.users.roles.*')">
+                    {{ __('Ruoli') }}
+                </x-nav-link>
             </div>
 
             <!-- Settings Dropdown -->
@@ -67,7 +81,7 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('history.dashboard')" :active="request()->routeIs('history.dashboard')">
+            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
         </div>

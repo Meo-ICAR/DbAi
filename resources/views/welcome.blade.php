@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'DbAI') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
 </head>
 <body class="bg-gray-50">
 
@@ -17,20 +18,21 @@
             </div>
             <div class="flex items-center space-x-4">
                 @auth
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="text-gray-600 hover:text-gray-900">
-                            Logout
-                        </button>
-                    </form>
+
+                <a href="{{ route('dashboard') }}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                            Dashboard
+                        </a>
+
+
                 @else
                     <a href="{{ route('login') }}" class="text-gray-600 hover:text-gray-900">Sign in</a>
                     @if (Route::has('register'))
                         <a href="{{ route('register') }}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
-                            Get started
+                            Register
                         </a>
                     @endif
                 @endauth
+
             </div>
         </div>
     </div>
@@ -66,7 +68,7 @@
             </div>
         </div>
         <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 lg:mr-5">
-    <img class="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full" src="{{ asset('images/home-banner.jpg') }}">
+    <img class="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full" src="{{ asset('images/dashboard-banner.jpg') }}">
 </div>
     </div>
 
@@ -76,7 +78,7 @@
             <div class="lg:text-center">
                 <h2 class="text-base text-blue-600 font-semibold tracking-wide uppercase">Features</h2>
                 <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-                    A better way to manage your databases
+                    A better way to extract infos from databases
                 </p>
             </div>
 

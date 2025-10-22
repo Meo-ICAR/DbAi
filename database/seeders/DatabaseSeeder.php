@@ -13,11 +13,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Create roles first
+        $this->call([
+            RoleSeeder::class,
         ]);
+
+        // Create admin user
+        $admin = User::factory()->create([
+            'name' => 'Admin User',
+            'email' => 'admin@example.com',
+        ]);
+        
+        // Assign admin role to the admin user
+        $adminRole = \App\Models\Role::where('name', 'admin')->first();
+        if ($adminRole) {
+            $admin->roles()->attach($adminRole);
+        }
     }
 }

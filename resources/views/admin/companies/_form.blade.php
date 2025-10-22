@@ -6,16 +6,16 @@
         <h3 class="text-lg leading-6 font-medium text-gray-900">Company Information</h3>
         <p class="mt-1 text-sm text-gray-500">Basic details about the company.</p>
     </div>
-    
+
     <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
         <!-- Company Name -->
         <div class="sm:col-span-3">
             <label for="name" class="block text-sm font-medium text-gray-700">Company Name <span class="text-red-500">*</span></label>
             <div class="mt-1">
-                <input type="text" 
-                       id="name" 
-                       name="name" 
-                       value="{{ old('name', $company->name ?? '') }}" 
+                <input type="text"
+                       id="name"
+                       name="name"
+                       value="{{ old('name', $company->name ?? '') }}"
                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('name') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror"
                        required>
                 @error('name')
@@ -28,10 +28,10 @@
         <div class="sm:col-span-3">
             <label for="email_admin" class="block text-sm font-medium text-gray-700">Admin Email <span class="text-red-500">*</span></label>
             <div class="mt-1">
-                <input type="email" 
-                       id="email_admin" 
-                       name="email_admin" 
-                       value="{{ old('email_admin', $company->email_admin ?? '') }}" 
+                <input type="email"
+                       id="email_admin"
+                       name="email_admin"
+                       value="{{ old('email_admin', $company->email_admin ?? '') }}"
                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('email_admin') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror"
                        required>
                 @error('email_admin')
@@ -44,10 +44,10 @@
         <div class="sm:col-span-3">
             <label for="urlogo" class="block text-sm font-medium text-gray-700">Logo URL</label>
             <div class="mt-1 flex rounded-md shadow-sm">
-                <input type="url" 
-                       id="urlogo" 
-                       name="urlogo" 
-                       value="{{ old('urlogo', $company->urlogo ?? '') }}" 
+                <input type="url"
+                       id="urlogo"
+                       name="urlogo"
+                       value="{{ old('urlogo', $company->urlogo ?? '') }}"
                        class="flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm @error('urlogo') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror">
                 @if(isset($company) && $company->urlogo)
                     <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
@@ -64,10 +64,10 @@
         <div class="sm:col-span-3">
             <label for="url_attivazione" class="block text-sm font-medium text-gray-700">Activation URL</label>
             <div class="mt-1">
-                <input type="url" 
-                       id="url_attivazione" 
-                       name="url_attivazione" 
-                       value="{{ old('url_attivazione', $company->url_attivazione ?? '') }}" 
+                <input type="url"
+                       id="url_attivazione"
+                       name="url_attivazione"
+                       value="{{ old('url_attivazione', $company->url_attivazione ?? '') }}"
                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('url_attivazione') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror">
                 @error('url_attivazione')
                     <p class="mt-2 text-sm text-red-600" id="url_attivazione-error">{{ $message }}</p>
@@ -83,14 +83,14 @@
         <h3 class="text-lg leading-6 font-medium text-gray-900">Database Connection</h3>
         <p class="mt-1 text-sm text-gray-500">Database connection details for this company.</p>
     </div>
-    
+
     <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
         <!-- Connection Type -->
         <div class="sm:col-span-2">
             <label for="db_connection" class="block text-sm font-medium text-gray-700">Connection Type <span class="text-red-500">*</span></label>
             <div class="mt-1">
-                <select id="db_connection" 
-                        name="db_connection" 
+                <select id="db_connection"
+                        name="db_connection"
                         class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('db_connection') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror"
                         required>
                     <option value="" disabled {{ old('db_connection', $company->db_connection ?? '') ? '' : 'selected' }}>Select a connection type</option>
@@ -108,10 +108,10 @@
         <div class="sm:col-span-2">
             <label for="db_host" class="block text-sm font-medium text-gray-700">Host <span class="text-red-500">*</span></label>
             <div class="mt-1">
-                <input type="text" 
-                       id="db_host" 
-                       name="db_host" 
-                       value="{{ old('db_host', $company->db_host ?? '127.0.0.1') }}" 
+                <input type="text"
+                       id="db_host"
+                       name="db_host"
+                       value="{{ old('db_host', $company->db_host ?? '127.0.0.1') }}"
                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('db_host') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror"
                        required>
                 @error('db_host')
@@ -124,10 +124,10 @@
         <div class="sm:col-span-1">
             <label for="db_port" class="block text-sm font-medium text-gray-700">Port <span class="text-red-500">*</span></label>
             <div class="mt-1">
-                <input type="number" 
-                       id="db_port" 
-                       name="db_port" 
-                       value="{{ old('db_port', $company->db_port ?? '3306') }}" 
+                <input type="number"
+                       id="db_port"
+                       name="db_port"
+                       value="{{ old('db_port', $company->db_port ?? '3306') }}"
                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('db_port') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror"
                        required>
                 @error('db_port')
@@ -140,10 +140,10 @@
         <div class="sm:col-span-2">
             <label for="db_database" class="block text-sm font-medium text-gray-700">Database Name <span class="text-red-500">*</span></label>
             <div class="mt-1">
-                <input type="text" 
-                       id="db_database" 
-                       name="db_database" 
-                       value="{{ old('db_database', $company->db_database ?? '') }}" 
+                <input type="text"
+                       id="db_database"
+                       name="db_database"
+                       value="{{ old('db_database', $company->db_database ?? '') }}"
                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('db_database') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror"
                        required>
                 @error('db_database')
@@ -156,10 +156,10 @@
         <div class="sm:col-span-2">
             <label for="db_username" class="block text-sm font-medium text-gray-700">Username <span class="text-red-500">*</span></label>
             <div class="mt-1">
-                <input type="text" 
-                       id="db_username" 
-                       name="db_username" 
-                       value="{{ old('db_username', $company->db_username ?? '') }}" 
+                <input type="text"
+                       id="db_username"
+                       name="db_username"
+                       value="{{ old('db_username', $company->db_username ?? '') }}"
                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('db_username') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror"
                        required>
                 @error('db_username')
@@ -172,13 +172,13 @@
         <div class="sm:col-span-2">
             <label for="db_password" class="block text-sm font-medium text-gray-700">Password</label>
             <div class="mt-1 flex rounded-md shadow-sm">
-                <input type="password" 
-                       id="db_password" 
-                       name="db_password" 
+                <input type="password"
+                       id="db_password"
+                       name="db_password"
                        class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-l-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm @error('db_password') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror"
                        autocomplete="new-password"
-                       placeholder="{{ $company ? '••••••••' : '' }}">
-                <button type="button" 
+                       >
+                <button type="button"
                         onclick="togglePassword('db_password')"
                         class="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm font-medium hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                     <svg id="eyeIcon-db_password" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -197,14 +197,14 @@
         <div class="sm:col-span-2">
             <label for="db_secrete" class="block text-sm font-medium text-gray-700">Secret Key <span class="text-red-500">*</span></label>
             <div class="mt-1 flex rounded-md shadow-sm">
-                <input type="password" 
-                       id="db_secrete" 
-                       name="db_secrete" 
-                       value="{{ old('db_secrete', $company->db_secrete ?? '') }}" 
+                <input type="password"
+                       id="db_secrete"
+                       name="db_secrete"
+                       value="{{ old('db_secrete', $company->db_secrete ?? '') }}"
                        class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-l-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm @error('db_secrete') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror"
                        required>
                 <div class="flex">
-                    <button type="button" 
+                    <button type="button"
                             onclick="togglePassword('db_secrete')"
                             class="inline-flex items-center px-3 py-2 border border-l-0 border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm font-medium hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                         <svg id="eyeIcon-db_secrete" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -212,7 +212,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                         </svg>
                     </button>
-                    <button type="button" 
+                    <button type="button"
                             onclick="generateSecret()"
                             class="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm font-medium hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 rounded-r-md">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -234,7 +234,7 @@
     function togglePassword(fieldId) {
         const input = document.getElementById(fieldId);
         const icon = document.getElementById(`eyeIcon-${fieldId}`);
-        
+
         if (input.type === 'password') {
             input.type = 'text';
             icon.innerHTML = `
@@ -248,35 +248,35 @@
             `;
         }
     }
-    
+
     function generateSecret() {
-        const secret = Math.random().toString(36).substring(2, 15) + 
+        const secret = Math.random().toString(36).substring(2, 15) +
                       Math.random().toString(36).substring(2, 15) +
                       Math.random().toString(36).substring(2, 15);
         const secretField = document.getElementById('db_secrete');
         secretField.value = secret;
-        
+
         // Auto-show the generated secret
         if (secretField.type === 'password') {
             togglePassword('db_secrete');
         }
-        
+
         // Copy to clipboard
         secretField.select();
         document.execCommand('copy');
-        
+
         // Show copied tooltip
         const button = event.currentTarget;
         const originalText = button.innerHTML;
         button.innerHTML = 'Copied!';
         button.classList.add('text-green-600');
-        
+
         setTimeout(() => {
             button.innerHTML = originalText;
             button.classList.remove('text-green-600');
         }, 2000);
     }
-    
+
     // Update port based on database type
     document.getElementById('db_connection').addEventListener('change', function() {
         const portMap = {
@@ -284,7 +284,7 @@
             'pgsql': '5432',
             'sqlsrv': '1433'
         };
-        
+
         const portInput = document.getElementById('db_port');
         if (portMap[this.value]) {
             portInput.value = portMap[this.value];

@@ -9,7 +9,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', [\App\Http\Controllers\HistoryController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('history.dashboard');
+Route::get('/dashboard', [\App\Http\Controllers\HistoryController::class, 'dashboard'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -25,7 +27,23 @@ Route::middleware('auth')->group(function () {
 
     // Company Management Routes
     Route::resource('companies', \App\Http\Controllers\Admin\CompanyController::class)->names('admin.companies');
-    
+
+    // User Role Management Routes
+    Route::prefix('users/roles')->name('admin.users.roles.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\UserRoleController::class, 'index'])->name('index');
+        Route::put('/{user}', [\App\Http\Controllers\Admin\UserRoleController::class, 'update'])->name('update');
+        Route::get('/bulk-assign', [\App\Http\Controllers\Admin\UserRoleController::class, 'bulkAssign'])->name('bulk-assign');
+        Route::post('/bulk-assign', [\App\Http\Controllers\Admin\UserRoleController::class, 'processBulkAssign'])->name('process-bulk-assign');
+    });
+
+    // Role Management Routes
+    Route::prefix('roles')->name('admin.roles.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\RoleController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Admin\RoleController::class, 'store'])->name('store');
+        Route::put('/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'update'])->name('update');
+        Route::delete('/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'destroy'])->name('destroy');
+    });
+
     // History Routes
     Route::resource('history', \App\Http\Controllers\HistoryController::class);
 

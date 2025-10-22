@@ -1,0 +1,152 @@
+/* Admin Dashboard Styles */
+
+/* Base Styles */
+body {
+    @apply bg-gray-50 text-gray-900;
+}
+
+/* Card Styles */
+.card {
+    @apply bg-white rounded-lg shadow-md overflow-hidden border border-gray-200;
+}
+
+.card-header {
+    @apply px-6 py-4 border-b border-gray-200 bg-white;
+}
+
+.card-title {
+    @apply text-lg font-semibold text-gray-800;
+}
+
+/* Table Styles */
+.table {
+    @apply min-w-full divide-y divide-gray-200;
+}
+
+.table thead th {
+    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+    @apply bg-gray-50;
+}
+
+.table tbody tr {
+    @apply bg-white hover:bg-gray-50;
+}
+
+.table tbody td {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-gray-500;
+}
+
+/* Button Styles */
+.btn {
+    @apply inline-flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150;
+}
+
+.btn-primary {
+    @apply bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500;
+}
+
+.btn-success {
+    @apply bg-green-600 hover:bg-green-700 focus:ring-green-500;
+}
+
+.btn-danger {
+    @apply bg-red-600 hover:bg-red-700 focus:ring-red-500;
+}
+
+.btn-secondary {
+    @apply bg-gray-600 hover:bg-gray-700 focus:ring-gray-500;
+}
+
+/* Form Styles */
+.form-control {
+    @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm;
+}
+
+.form-label {
+    @apply block text-sm font-medium text-gray-700;
+}
+
+/* Alert Styles */
+.alert {
+    @apply p-4 mb-4 rounded border-l-4;
+}
+
+.alert-success {
+    @apply bg-green-100 border-green-500 text-green-700;
+}
+
+.alert-danger {
+    @apply bg-red-100 border-red-500 text-red-700;
+}
+
+.alert-warning {
+    @apply bg-yellow-100 border-yellow-500 text-yellow-700;
+}
+
+.alert-info {
+    @apply bg-blue-100 border-blue-500 text-blue-700;
+}
+
+/* Badge Styles */
+.badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-primary {
+    @apply bg-indigo-100 text-indigo-800;
+}
+
+.badge-success {
+    @apply bg-green-100 text-green-800;
+}
+
+.badge-danger {
+    @apply bg-red-100 text-red-800;
+}
+
+.badge-warning {
+    @apply bg-yellow-100 text-yellow-800;
+}
+
+/* Modal Styles */
+.modal {
+    @apply fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full;
+}
+
+.modal-content {
+    @apply relative top-20 mx-auto p-6 border w-full md:w-1/2 lg:w-1/3 shadow-lg rounded-md bg-white;
+}
+
+/* Utility Classes */
+.shadow-sm {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+    .table-responsive {
+        @apply -mx-4 sm:-mx-0;
+    }
+    
+    .table thead {
+        @apply hidden;
+    }
+    
+    .table, .table tbody, .table tr, .table td {
+        @apply block w-full;
+    }
+    
+    .table tr {
+        @apply mb-4 border border-gray-200 rounded overflow-hidden;
+    }
+    
+    .table td {
+        @apply text-right px-4 py-3;
+    }
+    
+    .table td::before {
+        content: attr(data-label);
+        @apply float-left font-medium text-gray-500 uppercase text-xs;
+    }
+}

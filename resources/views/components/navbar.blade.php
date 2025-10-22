@@ -5,7 +5,7 @@
         <div class="flex justify-between items-center">
             <div class="flex items-center space-x-4">
                 <a href="{{ route('chat.index') }}" class="text-xl font-bold">Database Assistant</a>
-                <a href="{{ route('history.dashboard') }}" class="{{ Route::is('dashboard*') ? 'bg-blue-700' : 'hover:bg-blue-700' }} px-3 py-2 rounded">Dashboard</a>
+                <a href="{{ route('dashboard') }}" class="{{ Route::is('dashboard') ? 'bg-blue-700' : 'hover:bg-blue-700' }} px-3 py-2 rounded">Dashboard</a>
                 <a href="{{ route('history.index') }}" class="{{ Route::is('history.*') ? 'bg-blue-700' : 'hover:bg-blue-700' }} px-3 py-2 rounded">Query</a>
                 <a href="{{ route('chat.index') }}" class="{{ Route::is('chat*') ? 'bg-blue-700' : 'hover:bg-blue-700' }} px-3 py-2 rounded">Chat</a>
 
