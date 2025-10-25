@@ -476,6 +476,7 @@ class HistoryController extends Controller
 
         // Get all history items with masterquery = $history, ordered by slavedashboard
         $histories = History::where('masterquery', '=', $historyId)
+        ->where('slavedashboard', '>', 0)
             ->orderBy('slavedashboard');
         // Log the SQL query
         $historymaster = History::where('id', '=', $historyId)->first();
