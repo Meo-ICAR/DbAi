@@ -591,7 +591,6 @@ class HistoryController extends Controller
         return view('history.dashboard', [
             'charts' => $charts,
             'errors' => $errors,
-            'debug_queries' => $debug_queries,
             'title' => $titolo
         ]);
     }
