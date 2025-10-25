@@ -393,7 +393,7 @@ class HistoryController extends Controller
     {
         // Get all history items with dashboardorder > 0, ordered by dashboardorder
         $histories = History::where('dashboardorder', '>', 0)
-            ->where('masterquery', '<', 0)
+            ->where('masterquery', '<',1)
             ->orderBy('dashboardorder')
             ->get();
 
