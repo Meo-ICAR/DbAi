@@ -81,7 +81,7 @@
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                         <option value="">-- None (This is a master query) --</option>
                         @foreach(\App\Models\History::where('id', '!=', $history->id)
-                                                    ->where('masterquery', '<', 1
+                                                    ->where('masterquery', '<', 1)
                                                     ->get() as $h)
                             <option value="{{ $h->id }}" {{ old('masterquery', $history->masterquery) == $h->id ? 'selected' : '' }}>
                                 {{ $h->message }} (ID: {{ $h->id }})
