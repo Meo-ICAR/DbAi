@@ -81,7 +81,7 @@
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                         <option value="">-- None (This is a master query) --</option>
                         @foreach(\App\Models\History::where('id', '!=', $history->id)
-                                                    ->where('slavedashboard', 0)
+                                                    ->where('masterquery', '<', 1
                                                     ->get() as $h)
                             <option value="{{ $h->id }}" {{ old('masterquery', $history->masterquery) == $h->id ? 'selected' : '' }}>
                                 {{ $h->message }} (ID: {{ $h->id }})
@@ -100,7 +100,7 @@
                     <label for="slavedashboard" class="block text-sm font-medium text-gray-700 mb-1">
                         Dashboard Slave Priority
                     </label>
-                    <input type="number" name="slavedashboard" id="slavedashboard" 
+                    <input type="number" name="slavedashboard" id="slavedashboard"
                            min="0" max="100" step="1"
                            value="{{ old('slavedashboard', $history->slavedashboard) }}"
                            class="mt-1 block w-32 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
