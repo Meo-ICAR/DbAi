@@ -392,12 +392,25 @@ class HistoryController extends Controller
     public function dashboard()
     {
         // Get all history items with dashboardorder > 0 and masterslave is null, ordered by dashboardorder
-        $histories = History::where('dashboardorder', '>', 0)
-            ->orderBy('dashboardorder')
-            ->get();
+        $historiesQuery = History::where('dashboardorder', '>', 0)
+            ->orderBy('dashboardorder');
 
+        // Get the SQL query with bindings
+        $historiesSql = $historiesQuery->toSql();
+        $bindings = $historiesQuery->getBindings();
+
+        // Replace placeholders with actual values
+        foreach ($bindings as $binding) {
+            $value = is_numeric($binding) ? $binding : "'" . $binding . "'";
+            $historiesSql = preg_replace('/\?/', $value, $historiesSql, 1);
+        }
+
+        $histories = $historiesQuery->get();
         $charts = [];
         $errors = [];
+        $debug_queries = [
+            'histories_query' => $historiesSql
+        ];
 
         foreach ($histories as $history) {
             try {
@@ -460,7 +473,8 @@ class HistoryController extends Controller
 
         return view('history.dashboard', [
             'charts' => $charts,
-            'errors' => $errors
+            'errors' => $errors,
+            'debug_queries' => $debug_queries
         ]);
     }
 
@@ -591,6 +605,7 @@ class HistoryController extends Controller
         return view('history.dashboard', [
             'charts' => $charts,
             'errors' => $errors,
+            'debug_queries' => $debug_queries,
             'title' => $titolo
         ]);
     }
