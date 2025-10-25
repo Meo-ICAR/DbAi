@@ -61,7 +61,7 @@
     @endif
 
     <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800">{{ $title ?? 'Dashboard' }}</h1>
+        <h1 class="text-3xl font-bold text-gray-800">{{ $title ?? 'Dashboard XX' }}</h1>
         @if(!empty( $title))
         <a href="{{ url('/dashboard') }}" class="text-blue-600 hover:text-blue-800 flex items-center">
             <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
