@@ -86,7 +86,7 @@ class ChatController extends Controller
                 'query' => $lastQuery,
                 'results' => $results,
                 'isGroupByQuery' => $isGroupByQuery
-cdnan            ]);
+            ]);
 
         } catch (\Exception $e) {
             if ($request->ajax()) {
