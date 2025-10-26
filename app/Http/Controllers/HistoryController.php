@@ -13,11 +13,18 @@ class HistoryController extends Controller
     /**
      * Display a listing of table history entries.
      */
-    public function tables()
+    public function tables(Request $request)
     {
-        $tables = History::where('charttype', 'Table')
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        $query = History::where('charttype', 'Table');
+        
+        // Handle search
+        if ($search = $request->input('search')) {
+            $query->where('message', 'like', "%{$search}%");
+        }
+        
+        $tables = $query->orderBy('created_at', 'desc')
+            ->paginate(15)
+            ->appends($request->query());
         
         return view('history.tables', compact('tables'));
     }
@@ -210,14 +217,14 @@ class HistoryController extends Controller
                 }
 
                 \Log::info('Executing filtered SQL:', ['sql' => $sql, 'filter_value' => $filterValue]);
-                $results = collect(DB::select($sql, [$filterValue]))->map(fn($item) => (array)$item);
+                $results = collect(DB::select($sql, [$filterValue]));
             } else {
                 \Log::info('Executing SQL:', ['sql' => $sql]);
-                $results = collect(DB::select($sql))->map(fn($item) => (array)$item);
+                $results = collect(DB::select($sql));
             }
 
             // Apply sorting if needed
-            if ($sortColumn && $results->isNotEmpty() && array_key_exists($sortColumn, $results->first())) {
+            if ($sortColumn && $results->isNotEmpty() && property_exists($results->first(), $sortColumn)) {
                 $sortDirection = strtolower($sortDirection) === 'desc' ? 'desc' : 'asc';
                 $results = $sortDirection === 'asc'
                     ? $results->sortBy($sortColumn, SORT_REGULAR)

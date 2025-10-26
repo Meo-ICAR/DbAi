@@ -1,27 +1,47 @@
-@extends('layouts.app')
+@php
+    $page = 'history-tables';
+@endphp
+@extends('history.layout')
 
 @section('content')
 <div class="py-6">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 bg-white border-b border-gray-200">
-                <h2 class="text-2xl font-semibold mb-6">Tabelle Salvate</h2>
-                
+                <form action="{{ route('history.tables') }}" method="GET" class="mb-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-2xl font-semibold">Tabelle Salvate</h2>
+                        <div class="relative w-1/3">
+                            <input type="text" 
+                                   name="search" 
+                                   value="{{ request('search') }}" 
+                                   placeholder="Cerca per messaggio..." 
+                                   class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            @if(request('search'))
+                                <a href="{{ route('history.tables') }}" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </form>
+
                 @if($tables->count() > 0)
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Messaggio</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Azioni</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            <tbody id="tablesBody" class="bg-white divide-y divide-gray-200">
                                 @foreach($tables as $table)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $table->id }}</td>
+                                    <tr class="table-row" data-message="{{ strtolower($table->message) }}">
                                         <td class="px-6 py-4 whitespace-normal text-sm text-gray-900 max-w-xs">
                                             <div class="line-clamp-2">
                                                 {{ $table->message }}
@@ -40,7 +60,7 @@
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <div class="mt-4">
                         {{ $tables->links() }}
                     </div>
@@ -64,4 +84,32 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit the form when typing (with a small delay)
+    const searchInput = document.querySelector('input[name="search"]');
+    let searchTimer;
+
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+            this.form.submit();
+        }, 500); // 500ms delay
+    });
+
+    // Handle the clear button
+    const clearButton = document.querySelector('.fa-times');
+    if (clearButton) {
+        clearButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            searchInput.value = '';
+            searchInput.form.submit();
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection
