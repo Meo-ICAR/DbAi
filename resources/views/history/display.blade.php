@@ -82,15 +82,76 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200" id="results-table">
+                        @php
+                            $totals = [];
+                            $hasNumericColumns = false;
+                            $numericColumns = [];
+                            
+                            // First pass: Determine which columns contain numeric values
+                            if (count($results) > 0) {
+                                foreach (array_keys((array)$results[0]) as $column) {
+                                    $isNumericColumn = false;
+                                    $totals[$column] = 0;
+                                    
+                                    foreach ($results as $row) {
+                                        $value = $row->$column ?? null;
+                                        if (is_numeric($value)) {
+                                            $isNumericColumn = true;
+                                            $totals[$column] += $value;
+                                        } elseif ($value !== null && is_string($value) && is_numeric(str_replace([',', ' '], ['.', ''], $value))) {
+                                            $isNumericColumn = true;
+                                            $totals[$column] += (float)str_replace([',', ' '], ['.', ''], $value);
+                                        }
+                                    }
+                                    
+                                    $numericColumns[$column] = $isNumericColumn;
+                                    if ($isNumericColumn) {
+                                        $hasNumericColumns = true;
+                                    } else {
+                                        $totals[$column] = null;
+                                    }
+                                }
+                            }
+                        @endphp
+                        
                         @foreach($results as $index => $row)
-                        <tr class="{{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50' }} hover:bg-blue-100 [&:hover>*]:text-blue-800 transition-colors duration-200">
-                                @foreach($row as $value)
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $value }}
+                            <tr class="{{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50' }} hover:bg-blue-100 [&:hover>*]:text-blue-800 transition-colors duration-200">
+                                @foreach($row as $column => $value)
+                                    @php
+                                        $isNumeric = $numericColumns[$column] ?? false;
+                                        $cellClass = 'px-6 py-4 whitespace-nowrap text-sm ' . ($isNumeric ? 'text-right font-mono' : 'text-gray-500');
+                                        
+                                        // Format numeric values
+                                        $displayValue = $value;
+                                        if ($isNumeric && $value !== null) {
+                                            $numericValue = is_numeric($value) ? $value : (float)str_replace([',', ' '], ['.', ''], $value);
+                                            $displayValue = is_float($numericValue) 
+                                                ? number_format($numericValue, 2, ',', '.') 
+                                                : number_format($numericValue, 0, ',', '.');
+                                        }
+                                    @endphp
+                                    <td class="{{ $cellClass }}">
+                                        {{ $displayValue }}
                                     </td>
                                 @endforeach
                             </tr>
                         @endforeach
+                        
+                        @if($hasNumericColumns)
+                            <tfoot class="bg-gray-50 border-t-2 border-gray-200">
+                                <tr class="font-bold">
+                                    @foreach($totals as $column => $total)
+                                        <td class="px-6 py-3 text-sm {{ $total !== null ? 'text-right font-mono' : 'text-gray-500' }}">
+                                            @if($total !== null)
+                                                {{ is_float($total) ? number_format($total, 2, ',', '.') : number_format($total, 0, ',', '.') }}
+                                            @else
+                                                &nbsp;
+                                            @endif
+                                        </td>
+                                    @endforeach
+                                </tr>
+                            </tfoot>
+                        @endif
                     </tbody>
                 </table>
             </div>

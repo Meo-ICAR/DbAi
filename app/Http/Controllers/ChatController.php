@@ -79,14 +79,14 @@ class ChatController extends Controller
             if ($request->ajax()) {
                 return response()->json($responseData);
             }
-            
+
             // For non-AJAX requests, return the chat view
             return view('chat.index', [
                 'response' => $response->getContent(),
                 'query' => $lastQuery,
                 'results' => $results,
                 'isGroupByQuery' => $isGroupByQuery
-            ]);
+cdnan            ]);
 
         } catch (\Exception $e) {
             if ($request->ajax()) {

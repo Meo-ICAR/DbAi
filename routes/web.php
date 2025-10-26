@@ -46,6 +46,7 @@ Route::middleware('auth')->group(function () {
 
     // History Routes
     Route::resource('history', \App\Http\Controllers\HistoryController::class);
+    Route::get('/history/tables', [\App\Http\Controllers\HistoryController::class, 'tables'])->name('history.tables');
 
     // Additional history routes
     Route::get('history/{history}/display', [\App\Http\Controllers\HistoryController::class, 'display'])->name('history.display');

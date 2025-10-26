@@ -11,6 +11,18 @@ use Maatwebsite\Excel\Facades\Excel;
 class HistoryController extends Controller
 {
     /**
+     * Display a listing of table history entries.
+     */
+    public function tables()
+    {
+        $tables = History::where('charttype', 'Table')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+        
+        return view('history.tables', compact('tables'));
+    }
+
+    /**
      * Display a listing of the history entries with search and sorting.
      */
     public function index(Request $request)
