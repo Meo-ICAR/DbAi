@@ -30,9 +30,7 @@
                 <x-nav-link :href="route('admin.users.roles.index')" :active="request()->routeIs('admin.users.roles.*')">
                     {{ __('Ruoli') }}
                 </x-nav-link>
-                <x-nav-link :href="route('history.tables')" :active="request()->routeIs('history.tables')">
-                    {{ __('Tabelle') }}
-                </x-nav-link>
+              
             </div>
 
             <!-- Settings Dropdown -->

@@ -7,9 +7,8 @@
                 <a href="{{ route('chat.index') }}" class="text-xl font-bold">Database Assistant</a>
                 <a href="{{ route('dashboard') }}" class="{{ Route::is('dashboard') ? 'bg-blue-700' : 'hover:bg-blue-700' }} px-3 py-2 rounded">Dashboard</a>
                 <a href="{{ route('history.index') }}" class="{{ Route::is('history.index') ? 'bg-blue-700' : 'hover:bg-blue-700' }} px-3 py-2 rounded">Query</a>
-
-                <a href="{{ route('history.tables') }}" class="{{ Route::is('history.tables') ? 'bg-blue-700' : 'hover:bg-blue-700' }} px-3 py-2 rounded">Tabelle</a>
-                                <a href="{{ route('chat.index') }}" class="{{ Route::is('chat*') ? 'bg-blue-700' : 'hover:bg-blue-700' }} px-3 py-2 rounded">Chat</a>
+                <a href="{{ route('history.tables') }}" class="{{ Route::is('tables') ? 'bg-blue-700' : 'hover:bg-blue-700' }} px-3 py-2 rounded">Tabelle</a>
+                <a href="{{ route('chat.index') }}" class="{{ Route::is('chat*') ? 'bg-blue-700' : 'hover:bg-blue-700' }} px-3 py-2 rounded">Chat</a>
             </div>
             <div class="flex items-center space-x-4">
                 <div x-data="{ showInfo: false }">
