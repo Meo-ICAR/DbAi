@@ -88,6 +88,20 @@ class ChatController extends Controller
                 'isGroupByQuery' => $isGroupByQuery
             ]);
 
+        } catch (\GuzzleHttp\Exception\ServerException $e) {
+            $statusCode = $e->getResponse()->getStatusCode();
+            $errorMessage = $statusCode === 503 
+                ? 'The service is currently unavailable. Please try again later.'
+                : 'A server error occurred. Status code: ' . $statusCode;
+                
+            if ($request->ajax()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $errorMessage
+                ], $statusCode);
+            }
+
+            return back()->with('error', $errorMessage);
         } catch (\Exception $e) {
             if ($request->ajax()) {
                 return response()->json([
