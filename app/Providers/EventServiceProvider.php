@@ -17,6 +17,9 @@ class EventServiceProvider extends ServiceProvider
         \SocialiteProviders\Manager\SocialiteWasCalled::class => [
             \SocialiteProviders\Microsoft\MicrosoftExtendSocialite::class,
         ],
+        \Illuminate\Auth\Events\Login::class => [
+            \App\Listeners\UpdateDatabaseConnection::class,
+        ],
     ];
 
     public function boot()
