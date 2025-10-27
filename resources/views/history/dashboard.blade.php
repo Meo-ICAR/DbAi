@@ -19,8 +19,8 @@
                         <a href="{{ url('/') }}" class="text-xl font-bold">Database Assistant</a>
                         <a href="{{ url('/dashboard') }}" class="{{ request()->is('dashboard*') ? 'bg-blue-700' : 'hover:bg-blue-700' }} px-3 py-2 rounded">Dashboard</a>
                         <a href="{{ url('/history') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Query</a>
+                        <a  href="{{ url('/hystory/tables') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Tabelle</a>
                         <a href="{{ url('/chat') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Chat</a>
-                        <a  href="{{ url('/tables') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Tabelle</a>
                      </div>
                     <div class="flex items-center space-x-4">
                         <div x-data="{ showInfo: false }">

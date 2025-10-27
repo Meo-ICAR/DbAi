@@ -45,8 +45,10 @@ Route::middleware('auth')->group(function () {
     });
 
     // History Routes
-    Route::get('/history/tables', [\App\Http\Controllers\HistoryController::class, 'tables'])->name('history.tables');
     Route::resource('history', \App\Http\Controllers\HistoryController::class);
+
+    // Tables Route
+    Route::get('/tables', [\App\Http\Controllers\HistoryController::class, 'tables'])->name('tables');
 
     // Additional history routes
     Route::get('history/{history}/display', [\App\Http\Controllers\HistoryController::class, 'display'])->name('history.display');
@@ -55,6 +57,8 @@ Route::middleware('auth')->group(function () {
     Route::get('history/{history}/export', [\App\Http\Controllers\HistoryController::class, 'export'])->name('history.export');
     Route::get('history/{history}/subdashboard/{filter_column?}/{filter_value?}', [\App\Http\Controllers\HistoryController::class, 'subdashboard'])->name('history.subdashboard');
     Route::post('history/{history}/clone', [\App\Http\Controllers\HistoryController::class, 'clone'])->name('history.clone');
+    Route::get('/history/tables', [\App\Http\Controllers\HistoryController::class, 'tables'])->name('history.tables');
+ 
 });
 
 
