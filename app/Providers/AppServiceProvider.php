@@ -48,9 +48,7 @@ class AppServiceProvider extends ServiceProvider
             */
         }
         else {
-            Log::info('Database connection not updated', [
-                'database' => $olddb;
-            ]);
+           // Log::info('Database connection not updated', [ 'database' => $olddb ]);
         }
 
     }
