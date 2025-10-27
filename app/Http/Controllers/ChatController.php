@@ -88,6 +88,26 @@ class ChatController extends Controller
                 'isGroupByQuery' => $isGroupByQuery
             ]);
 
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            $statusCode = $e->getResponse()->getStatusCode();
+            $errorMessage = match($statusCode) {
+                302 => 'The request was redirected. Please try again or contact support if the issue persists.',
+                400 => 'Bad request. Please check your input and try again.',
+                401 => 'Authentication required. Please log in again.',
+                403 => 'You do not have permission to perform this action.',
+                404 => 'The requested resource was not found.',
+                default => 'A client error occurred. Status code: ' . $statusCode
+            };
+                
+            if ($request->ajax()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $errorMessage,
+                    'code' => $statusCode
+                ], $statusCode);
+            }
+
+            return back()->with('error', $errorMessage);
         } catch (\GuzzleHttp\Exception\ServerException $e) {
             $statusCode = $e->getResponse()->getStatusCode();
             $errorMessage = $statusCode === 503 
@@ -97,7 +117,8 @@ class ChatController extends Controller
             if ($request->ajax()) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => $errorMessage
+                    'message' => $errorMessage,
+                    'code' => $statusCode
                 ], $statusCode);
             }
 
