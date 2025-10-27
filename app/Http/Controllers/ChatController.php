@@ -111,7 +111,7 @@ class ChatController extends Controller
         } catch (\GuzzleHttp\Exception\ServerException $e) {
             $statusCode = $e->getResponse()->getStatusCode();
             $errorMessage = $statusCode === 503 
-                ? 'The service is currently unavailable. Please try again later.'
+                ? 'The service is currently unavailable. Please try again later. Status code: ' . $statusCode
                 : 'A server error occurred. Status code: ' . $statusCode;
                 
             if ($request->ajax()) {
