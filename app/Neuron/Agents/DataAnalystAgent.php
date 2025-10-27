@@ -45,7 +45,14 @@ class DataAnalystAgent extends Agent
             "Generate a SQL query for every request"
         ];
 
-        if ($currentDatabase === 'proforma') {
+        // Add company-specific AI background if user is authenticated and has a company
+        if (auth()->check() && $company = auth()->user()->company) {
+            if (!empty($company->aibackground)) {
+                $more[] = $company->aibackground;
+            }
+        }
+        if (empty($more)) {
+            if ($currentDatabase === 'proforma') {
             $more[] = "You are working with the 'proforma' database. This is a financial database containing invoice and accounting data. Business Logic Summary Agents (from the fornitoris table) submit loan applications (stored in the pratiches table). Banks (from the clientis table) pay our agency for these applications.
 Commissions (in the provvigioni table) are generated. This table is linked to agents via the fornitori_id field and to banks via the clienti_id field. We (the agency) calculate the commissions for our agents and send them a proforma (from the proformas table). Based on our proforma, the agents send us their invoice (an incoming/passive invoice). This invoice is stored in the invoices table and is linked to the agent using the fornitori_id field.
 Separately, the banks send us their proformas. We (the agency) then issue our invoice to them (an outgoing/active invoice). This invoice is also stored in the invoices table, but it is linked to the bank using the clienti_id field.
@@ -62,7 +69,7 @@ CRITICAL QUERYING RULES  dopplers Table Warning: All columns in the dopplers tab
 
 Correct: AVG(CAST(d.CD4_TSA AS DECIMAL(10,2))) WRONG: WHERE d.AGE_TSA > 50 (This will fail or give incorrect string-based results). Lab Data Sources:  For longitudinal/visit labs (e.g., current CD4, average LDL): Use the patient_visits table (e.g., pv.CD4, pv.LDL). For baseline labs (e.g., nadir CD4, max viremia): Use the patients table (e.g., p.CD4nadir, p.HIVRNAmax). For Doppler-specific labs: Use the dopplers table (e.g., d.CD4_TSA, d.TRIG_TSA) and remember to CAST! Categorical Filters: When I ask for smokers, diabetic patients, or patients with HCV, you must JOIN the patients table with the correct dictionary table (e.g., fumos, diabetes, epatites) and filter on its id column. Example (Diabetics): ... JOIN diabetes dia ON p.diabete_id = dia.id WHERE dia.id = 'si' .  Joins: Patient to Visits: FROM patients p JOIN patient_visits pv ON p.id = pv.patient_id Visits to Plaques: ... JOIN plaches pl ON pv.id = pl.patient_visit_id Patient to Doppler: FROM patients p JOIN dopplers d ON p.id = d.patient_id Age Calculation: Calculate age from p.datanascita. Use: (YEAR(CURDATE()) - YEAR(p.datanascita))";
         }
-
+   }
         // Merge background and more arrays
         $allInstructions = array_merge($background, $more);
 

@@ -22,6 +22,7 @@ class Company extends Model
         'urlogo',
         'url_attivazione',
         'email_admin',
+        'aibackground',
         'db_secrete',
         'db_connection',
         'db_host',

@@ -33,8 +33,9 @@ class AppServiceProvider extends ServiceProvider
         // Set database based on the current host
         if (str_ends_with($host, 'hassisto.com')) {
           //  Log::info('Setting database to proforma for host: ' . $host);
-
+             $olddb = config('database.connections.mysql.database');
             // Update database configuration
+            if ($olddb != 'proforma') {
             config(['database.connections.mysql.database' => 'proforma']);
 
             // Reconnect to the database with new settings
@@ -46,5 +47,11 @@ class AppServiceProvider extends ServiceProvider
             ]);
             */
         }
+        else {
+            Log::info('Database connection not updated', [
+                'database' => $olddb;
+            ]);
+        }
+
     }
 }

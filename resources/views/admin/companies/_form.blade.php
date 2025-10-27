@@ -74,6 +74,21 @@
                 @enderror
             </div>
         </div>
+
+        <!-- AI Background -->
+        <div class="sm:col-span-6">
+            <label for="aibackground" class="block text-sm font-medium text-gray-700">AI Background</label>
+            <div class="mt-1">
+                <textarea id="aibackground"
+                          name="aibackground"
+                          rows="4"
+                          class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md @error('aibackground') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror">{{ old('aibackground', $company->aibackground ?? '') }}</textarea>
+                @error('aibackground')
+                    <p class="mt-2 text-sm text-red-600" id="aibackground-error">{{ $message }}</p>
+                @enderror
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Add background information about the company for AI context.</p>
+        </div>
     </div>
 </div>
 
