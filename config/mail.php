@@ -37,16 +37,19 @@ return [
 
     'mailers' => [
 
-        'smtp' => [
+   'smtp' => [
             'transport' => 'smtp',
-            'scheme' => env('MAIL_SCHEME'),
-            'url' => env('MAIL_URL'),
-            'host' => env('MAIL_HOST', '127.0.0.1'),
-            'port' => env('MAIL_PORT', 2525),
+            'host' => env('MAIL_HOST', 'ssl0.ovh.net'),
+            'port' => env('MAIL_PORT', 465),
+            'encryption' => env('MAIL_ENCRYPTION', 'ssl'),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
-            'timeout' => null,
-            'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
+            'timeout' => env('MAIL_TIMEOUT', 30),
+            'auth_mode' => env('MAIL_AUTH_MODE', 'login'),
+            'verify_peer' => env('MAIL_VERIFY_PEER', false),
+            'verify_peer_name' => env('MAIL_VERIFY_PEER_NAME', false),
+            'allow_self_signed' => env('MAIL_ALLOW_SELF_SIGNED', true),
+            'local_domain' => env('MAIL_LOCAL_DOMAIN', 'hassisto.eu'),
         ],
 
         'ses' => [
@@ -111,8 +114,8 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', 'Example'),
+        'address' => env('MAIL_FROM_ADDRESS', 'dbai@hassisto.eu'),
+        'name' => env('MAIL_FROM_NAME', 'DbAI'),
     ],
 
 ];
