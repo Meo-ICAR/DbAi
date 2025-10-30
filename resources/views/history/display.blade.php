@@ -38,7 +38,7 @@
 @endphp
 
 @section('content')
-<div class="container mx-auto max-w-6xl p-6" x-data="{ showFilters: false }">
+<div class="container mx-auto p-6 w-full" x-data="{ showFilters: false }" style="max-width: 95%;">
     <div class="bg-white rounded-lg shadow-lg p-6">
         <form action="{{ request()->url() }}" method="GET" id="filter-form">
             @if(request('sort'))
@@ -95,8 +95,8 @@
         @endif
 
         @if($results && count($results) > 0)
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
+            <div class="overflow-x-auto text-base">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
                             @foreach(array_keys((array)$results[0]) as $column)
@@ -186,7 +186,7 @@
                                             }
                                         }
                                     @endphp
-                                    <td class="{{ $cellClass }}">
+                                    <td class="{{ $cellClass }} py-3">
                                         @if($isNumeric && is_numeric($value))
                                             <div class="flex justify-end">
                                                 {{ $displayValue }}
