@@ -54,13 +54,26 @@
                         </x-dropdown-link>
 
                         <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
+                        @auth
+                            @if(auth()->user()->company && auth()->user()->company->urllogo)
+                                <div class="px-4 py-2 border-t border-gray-200">
+                                    <div class="flex items-center">
+                                        <img src="{{ asset(auth()->user()->company->urllogo) }}" 
+                                             alt="{{ auth()->user()->company->name }}" 
+                                             class="h-8 w-8 rounded-full object-cover mr-2">
+                                        <span class="text-sm text-gray-700">{{ auth()->user()->company->name }}</span>
+                                    </div>
+                                </div>
+                            @endif
+                        @endauth
 
+                        <form method="POST" action="{{ route('logout') }}" class="border-t border-gray-200 mt-2">
+                            @csrf
                             <x-dropdown-link :href="route('logout')"
                                     onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
+                                                this.closest('form').submit();"
+                                    class="text-red-600 hover:bg-red-50">
+                                <i class="fas fa-sign-out-alt mr-2"></i>{{ __('Log Out') }}
                             </x-dropdown-link>
                         </form>
                     </x-slot>

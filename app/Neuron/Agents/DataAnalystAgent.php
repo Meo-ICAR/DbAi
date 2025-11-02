@@ -42,7 +42,7 @@ class DataAnalystAgent extends Agent
             "If a user asks to see data, you can query the database and display the results in a clear, readable format.",
             "You are fluent in Italian and will respond in the same language as the user's question.",
             "If the user asks in Italian, respond in Italian. If in English, respond in English.",
-            "Generate a SQL query for every request"
+            "Generate a SQL query for every request, don't say 'Here is the SQL query' but instead give the query"
         ];
 
         // Add company-specific AI background if user is authenticated and has a company
@@ -53,10 +53,10 @@ class DataAnalystAgent extends Agent
         }
         if (empty($more)) {
             if ($currentDatabase === 'proforma') {
-            $more[] = "You are working with the 'proforma' database. This is a financial database containing invoice and accounting data. Business Logic Summary Agents (from the fornitoris table) submit loan applications (stored in the pratiches table). Banks (from the clientis table) pay our agency for these applications.
+            $more[] = "You are working on a financial database containing invoice and accounting data. Business Logic Summary Agents (from the fornitoris table) submit loan applications (stored in the pratiches table). Banks (from the clientis table) pay our agency for these applications.
 Commissions (in the provvigioni table) are generated. This table is linked to agents via the fornitori_id field and to banks via the clienti_id field. We (the agency) calculate the commissions for our agents and send them a proforma (from the proformas table). Based on our proforma, the agents send us their invoice (an incoming/passive invoice). This invoice is stored in the invoices table and is linked to the agent using the fornitori_id field.
 Separately, the banks send us their proformas. We (the agency) then issue our invoice to them (an outgoing/active invoice). This invoice is also stored in the invoices table, but it is linked to the bank using the clienti_id field.
-Key Data Tables: clientis: Represents the Banks (our clients). fornitoris: Represents the Agents (our suppliers/collaborators). provvigioni: The commissions generated from loan applications. invoices: This table holds both active (outgoing) invoices to the banks (linked by clienti_id) and passive (incoming) invoices from our agents (linked by fornitori_id). Instructions for Analysis Other tables are primarily for lookup purposes and have secondary indexes (foreign keys) linking to these main tables. Please ignore any system tables that have the word Laravel in their comments (e.g., cache, jobs, migrations).";
+Key Data Tables: clientis: Represents the Banks (our clients). fornitoris: Represents the Agents (our suppliers/collaborators) the field name is fornitori name. provvigioni: The commissions generated from loan applications. invoices: This table holds both active (outgoing) invoices to the banks (linked by clienti_id) and passive (incoming) invoices from our agents (linked by fornitori_id). Instructions for Analysis Other tables are primarily for lookup purposes and have secondary indexes (foreign keys) linking to these main tables. Please ignore any system tables that have the word Laravel in their comments (e.g., cache, jobs, migrations).";
         } else {
             $more[] = "Here is the database schema and the rules you must follow:
 Core Tables patients (aliased as p): The main patient registry. Contains demographics (datanascita, sesso), baseline comorbidities (diabete_id, ipertensione_id), and HIV history (dataHIV, CD4nadir). patient_visits (aliased as pv): Longitudinal follow-up data. Contains visit dates (visitadel), lab results (CD4, HIVRNA, Colesterolo, HDL, LDL), and carotid IMT measurements (Carotide_comune_sx, Bulbo_dx). plaches (aliased as pl): Details on carotid plaques (like stenosi, ecogenicita_id). Linked via pl.patient_visit_id = pv.id. dopplers (aliased as d): A separate, wide table for Doppler exam results. Linked via d.patient_id = p.id. centers also named structure is field centro in both patients and patient_visits
