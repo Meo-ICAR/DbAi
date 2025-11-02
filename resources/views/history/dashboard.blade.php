@@ -1,41 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Database Assistant</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
-</head>
-<body class="bg-gray-100">
-    <div class="min-h-screen">
-        <!-- Navigation -->
-        <nav class="bg-blue-600 text-white shadow-lg">
-            <div class="container mx-auto px-4 py-3">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center space-x-4">
-                        <a href="{{ url('/') }}" class="text-xl font-bold">Database Assistant</a>
-                        <a href="{{ url('/dashboard') }}" class="{{ request()->is('dashboard*') ? 'bg-blue-700' : 'hover:bg-blue-700' }} px-3 py-2 rounded">Dashboard</a>
-                        <a href="{{ url('/history') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Query</a>
-                        <a  href="{{ url('/tables') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Tabelle</a>
-                        <a href="{{ url('/chat') }}" class="hover:bg-blue-700 px-3 py-2 rounded">Chat</a>
-                     </div>
-                    <div class="flex items-center space-x-4">
-                        <div x-data="{ showInfo: false }">
-                            <x-info-button page="dashboard" />
-                        </div>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="text-white hover:bg-blue-700 px-3 py-2 rounded">
-                                <i class="fas fa-sign-out-alt mr-1"></i> Logout
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </nav>
+@php
+    $page = 'history-dashboard';
+@endphp
+@extends('history.layout')
+
+@section('content')
 
         <!-- Page Content -->
         <main class="container mx-auto px-4 py-6">
