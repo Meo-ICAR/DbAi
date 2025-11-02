@@ -142,7 +142,7 @@ class HistoryController extends Controller
             'dashboardorder' => 'nullable|integer',
             'masterquery' => 'nullable|exists:histories,id',
             'slavedashboard' => 'nullable|integer|min:0|max:100',
-            'categorymenu_id' => 'nullable|exists:category_menus,id',
+            'categorymenu_id' => 'nullable|exists:dbai.category_menus,id',
         ]);
 
         $updateData = [
