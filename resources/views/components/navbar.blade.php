@@ -14,7 +14,11 @@
                 <div x-data="{ showInfo: false }">
                     <x-info-button :page="$page ?? 'default'" />
                 </div>
+
                 @auth
+                          <div class="flex items-center space-x-2 bg-blue-700 bg-opacity-50 px-3 py-1 rounded-full">
+                         <span class="text-sm font-medium">{{ auth()->user()->name }}</span>
+                </div>
                     @if(auth()->user()->company )
                         <div class="flex items-center space-x-2 bg-blue-700 bg-opacity-50 px-3 py-1 rounded-full">
                          <span class="text-sm font-medium">{{ auth()->user()->company->name }}</span>

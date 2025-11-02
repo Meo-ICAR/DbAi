@@ -7,6 +7,8 @@ use App\Models\History;
 use App\Http\Controllers\HistoryController;
 use Illuminate\Http\Request;
 use NeuronAI\Chat\Messages\UserMessage;
+use NeuronAI\Chat\Enums\MessageRole;
+use NeuronAI\Chat\Message;
 
 class ChatController extends Controller
 {
@@ -15,6 +17,12 @@ class ChatController extends Controller
     public function __construct(DataAnalystAgent $agent)
     {
         $this->agent = $agent;
+
+$response = $agent->chat([
+        new Message(MessageRole::USER, "Hi, my company is called Inspector.dev"),
+        new Message(MessageRole::ASSISTANT, "Hi, how can I assist you today?"),
+        new Message(MessageRole::USER, "What's the name of the company I work for?"),
+    ]);
     }
 
     public function index()
@@ -98,7 +106,7 @@ class ChatController extends Controller
                 404 => 'The requested resource was not found.',
                 default => 'A client error occurred. Status code: ' . $statusCode
             };
-                
+
             if ($request->ajax()) {
                 return response()->json([
                     'status' => 'error',
@@ -110,10 +118,10 @@ class ChatController extends Controller
             return back()->with('error', $errorMessage);
         } catch (\GuzzleHttp\Exception\ServerException $e) {
             $statusCode = $e->getResponse()->getStatusCode();
-            $errorMessage = $statusCode === 503 
+            $errorMessage = $statusCode === 503
                 ? 'The service is currently unavailable. Please try again later. Status code: ' . $statusCode
                 : 'A server error occurred. Status code: ' . $statusCode;
-                
+
             if ($request->ajax()) {
                 return response()->json([
                     'status' => 'error',

@@ -15,7 +15,8 @@ use NeuronAI\Tools\Toolkits\MySQL\MySQLToolkit;
 use App\Neuron\Tools\LoggingMySQLSelectTool;
 use NeuronAI\Tools\Toolkits\MySQL\MySQLSchemaTool;
 //use NeuronAI\Tools\Toolkits\MySQL\MySQLSelectTool;
-
+use NeuronAI\Chat\History\InMemoryChatHistory;
+use NeuronAI\Chat\History\ChatHistoryInterface;
 
 
 class DataAnalystAgent extends Agent
@@ -27,6 +28,13 @@ class DataAnalystAgent extends Agent
             model: env('GEMINI_MODEL', 'gemini-2.5-flash'),
             parameters: [], // Add custom params (temperature, logprobs, etc)
             httpOptions: new HttpClientOptions(timeout: 30),
+        );
+    }
+
+    protected function chatHistory()
+    {
+        return new InMemoryChatHistory(
+            contextWindow: 50000
         );
     }
 
@@ -73,7 +81,19 @@ Correct: AVG(CAST(d.CD4_TSA AS DECIMAL(10,2))) WRONG: WHERE d.AGE_TSA > 50 (This
         // Merge background and more arrays
         $allInstructions = array_merge($background, $more);
 
-        return (string) new SystemPrompt(background: $allInstructions);
+        return (string) new SystemPrompt(background: $allInstructions, output: ["Write SQL query"]);
+        /*
+         background: ["You are an AI Agent specialized in writing YouTube video summaries."],
+            steps: [
+                "Get the url of a YouTube video, or ask the user to provide one.",
+                "Use the tools you have available to retrieve the transcription of the video.",
+                "Write the summary.",
+            ],
+            output: [
+                "Write a summary in a paragraph without using lists. Use just fluent text.",
+                "After the summary add a list of three sentences as the three most important take away from the video.",
+            ]
+        */
     }
 
     protected function tools(): array
