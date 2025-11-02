@@ -76,7 +76,7 @@ class CompanyController extends Controller
     {
         // Store the original ID
         $originalId = $company->id;
-        
+
         // Decrypt the password for editing
         try {
             $company->db_password = $company->db_password ? decrypt($company->db_password) : '';
@@ -84,10 +84,10 @@ class CompanyController extends Controller
             // If decryption fails, set empty password
             $company->db_password = '';
         }
-        
+
         // Make sure the ID is preserved
         $company->id = $originalId;
-        
+
         return view('admin.companies.edit', compact('company'));
     }
 
@@ -100,11 +100,10 @@ class CompanyController extends Controller
             'name' => 'required|string|max:255',
             'urlogo' => 'nullable|url|max:255',
             'url_attivazione' => 'nullable|url|max:255',
-            'email_admin' => [
+            'email' => [
                 'required',
                 'email',
-                Rule::unique('companies', 'email_admin')->ignore($company->id)
-            ],
+             ],
             'db_secrete' => 'required|string|min:8',
             'db_connection' => 'required|string|in:mysql,pgsql,sqlsrv',
             'db_host' => 'required|string|max:255',

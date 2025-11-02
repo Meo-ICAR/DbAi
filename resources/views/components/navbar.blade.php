@@ -17,7 +17,7 @@
                 @auth
                     @if(auth()->user()->company )
                         <div class="flex items-center space-x-2 bg-blue-700 bg-opacity-50 px-3 py-1 rounded-full">
-                            <img src="{{ auth()->user()->company->urllogo }}"
+                            <img src="{{ asset(auth()->user()->company->urllogo) }}"
                                  alt="{{ auth()->user()->company->name }}"
                                  class="h-8 w-8 rounded-full object-cover border-2 border-white">
                             <span class="text-sm font-medium">{{ auth()->user()->company->name }}</span>
