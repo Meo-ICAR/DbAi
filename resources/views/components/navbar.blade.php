@@ -21,8 +21,8 @@
                 </div>
                     @if(auth()->user()->company )
                         <div class="flex items-center space-x-2 bg-blue-700 bg-opacity-50 px-3 py-1 rounded-full">
-                            @if(auth()->user()->company->urllogo)
-                                <img src="{{ auth()->user()->company->urllogo }}" alt="{{ auth()->user()->company->name }}" class="h-6 w-6 rounded-full object-cover">
+                            @if(auth()->user()->company->urlogo)
+                                <img src="{{ auth()->user()->company->urlogo }}" alt="{{ auth()->user()->company->name }}" class="h-6 w-6 rounded-full object-cover">
                             @endif
                             <span class="text-sm font-medium">{{ auth()->user()->company->name }}</span>
                         </div>
