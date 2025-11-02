@@ -72,7 +72,7 @@ class History extends Model
      */
     public function scopeWhereSqlStatement($query, $sql)
     {
-        return $query->where('sqlstatement', $sql);
+        return $query->on('dbai')->where('sqlstatement', $sql);
     }
 
     /**

@@ -82,7 +82,7 @@ Correct: AVG(CAST(d.CD4_TSA AS DECIMAL(10,2))) WRONG: WHERE d.AGE_TSA > 50 (This
         // Merge background and more arrays
         $allInstructions = array_merge($background, $more);
 
-        return (string) new SystemPrompt(background: $allInstructions, output: ["Write SQL query"]);
+        return (string) new SystemPrompt(background: $allInstructions);
         /*
          background: ["You are an AI Agent specialized in writing YouTube video summaries."],
             steps: [
