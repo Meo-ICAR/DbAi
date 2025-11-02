@@ -16,7 +16,11 @@ class UserRoleController extends Controller
      */
     public function index()
     {
-        $query = User::with('roles');
+        // Ensure we're using the dbai connection
+        $user = new User();
+        $user->setConnection('dbai');
+        
+        $query = $user->with('roles');
         
         // Search by name or email
         if (request()->has('search') && !empty(request('search'))) {
@@ -31,31 +35,37 @@ class UserRoleController extends Controller
         if (request()->has('role') && !empty(request('role'))) {
             $roleId = request('role');
             $query->whereHas('roles', function($q) use ($roleId) {
-                $q->where('roles.id', $roleId);
+                $role = new Role();
+                $role->setConnection('dbai');
+                $q->setModel($role)
+                  ->where('roles.id', $roleId);
             });
         }
         
         $users = $query->orderBy('name')->paginate(15);
     
-    // Load roles with their permissions and count of users using Spatie's methods
-    $roles = Role::with(['permissions', 'users'])
-        ->withCount('users')
-        ->get()
-        ->map(function ($role) {
-            return (object) [
-                'id' => $role->id,
-                'name' => $role->name,
-                'description' => $role->description ?? 'No description',
-                'users_count' => $role->users_count,
-                'permissions' => $role->permissions,
-                'is_system' => in_array($role->name, ['admin', 'user']) // Mark system roles
-            ];
-        });
+        // Load roles with their permissions and count of users using Spatie's methods
+        $role = new Role();
+        $role->setConnection('dbai');
+        
+        $roles = $role->with(['permissions', 'users'])
+            ->withCount('users')
+            ->get()
+            ->map(function ($role) {
+                return (object) [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                    'description' => $role->description ?? 'No description',
+                    'users_count' => $role->users_count,
+                    'permissions' => $role->permissions,
+                    'is_system' => in_array($role->name, ['admin', 'user']) // Mark system roles
+                ];
+            });
     
-    return view('admin.users.roles.index', [
-        'users' => $users,
-        'roles' => $roles
-    ]);
+        return view('admin.users.roles.index', [
+            'users' => $users,
+            'roles' => $roles
+        ]);
     }
 
     /**
@@ -95,12 +105,22 @@ class UserRoleController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        // Ensure we're using the dbai connection
+        $user->setConnection('dbai');
+        
+        // Temporarily set the default connection for validation
+        $connection = config('database.default');
+        config(['database.default' => 'dbai']);
+        
         $request->validate([
             'roles' => 'nullable|array',
             'roles.*' => 'exists:roles,id',
         ]);
+        
+        // Restore the default connection
+        config(['database.default' => $connection]);
 
-        DB::transaction(function () use ($user, $request) {
+        DB::connection('dbai')->transaction(function () use ($user, $request) {
             $user->roles()->sync($request->input('roles', []));
         });
 
@@ -113,8 +133,15 @@ class UserRoleController extends Controller
      */
     public function bulkAssign()
     {
-        $users = User::orderBy('name')->get();
-        $roles = Role::all();
+        // Ensure we're using the dbai connection
+        $user = new User();
+        $user->setConnection('dbai');
+        
+        $role = new Role();
+        $role->setConnection('dbai');
+        
+        $users = $user->orderBy('name')->get();
+        $roles = $role->all();
         
         return view('admin.users.roles.bulk-assign', compact('users', 'roles'));
     }
@@ -124,6 +151,10 @@ class UserRoleController extends Controller
      */
     public function processBulkAssign(Request $request)
     {
+        // Temporarily set the default connection for validation
+        $connection = config('database.default');
+        config(['database.default' => 'dbai']);
+        
         $request->validate([
             'users' => 'required|array',
             'users.*' => 'exists:users,id',
@@ -132,12 +163,20 @@ class UserRoleController extends Controller
             'action' => 'required|in:assign,remove',
         ]);
         
-        $users = User::whereIn('id', $request->users)->get();
+        // Restore the default connection
+        config(['database.default' => $connection]);
+        
+        // Use the dbai connection for the query
+        $user = new User();
+        $user->setConnection('dbai');
+        
+        $users = $user->whereIn('id', $request->users)->get();
         $roleIds = $request->roles;
         $action = $request->action;
         
-        DB::transaction(function () use ($users, $roleIds, $action) {
+        DB::connection('dbai')->transaction(function () use ($users, $roleIds, $action) {
             foreach ($users as $user) {
+                $user->setConnection('dbai');
                 if ($action === 'assign') {
                     $user->roles()->syncWithoutDetaching($roleIds);
                 } else {

@@ -14,7 +14,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::latest()->paginate(10);
+        // Ensure we're using the dbai connection
+        $users = (new User())->setConnection('dbai')->latest()->paginate(10);
         return view('users.index', compact('users'));
     }
 
@@ -31,15 +32,31 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        // Temporarily set the default connection for validation
+        $connection = config('database.default');
+        config(['database.default' => 'dbai']);
+        
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => [
+                'required', 
+                'string', 
+                'email', 
+                'max:255', 
+                Rule::unique('users', 'email')
+            ],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
+        
+        // Restore the default connection
+        config(['database.default' => $connection]);
 
-        $validated['password'] = Hash::make($validated['password']);
-
-        User::create($validated);
+        // Create user with dbai connection
+        $user = new User();
+        $user->setConnection('dbai');
+        $user->fill($validated);
+        $user->password = Hash::make($validated['password']);
+        $user->save();
 
         return redirect()->route('users.index')
             ->with('success', 'User created successfully.');
@@ -58,6 +75,13 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        // Ensure we're using the dbai connection
+        $user->setConnection('dbai');
+        
+        // Temporarily set the default connection for validation
+        $connection = config('database.default');
+        config(['database.default' => 'dbai']);
+        
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => [
@@ -65,7 +89,7 @@ class UserController extends Controller
                 'string',
                 'email',
                 'max:255',
-                Rule::unique('users')->ignore($user->id),
+                Rule::unique('users', 'email')->ignore($user->id, 'id'),
             ],
         ];
 
@@ -75,6 +99,9 @@ class UserController extends Controller
         }
 
         $validated = $request->validate($rules);
+        
+        // Restore the default connection
+        config(['database.default' => $connection]);
 
         if (isset($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
@@ -82,7 +109,9 @@ class UserController extends Controller
             unset($validated['password']);
         }
 
-        $user->update($validated);
+        $user->fill($validated);
+        $user->setConnection('dbai');
+        $user->save();
 
         return redirect()->route('users.index')
             ->with('success', 'User updated successfully.');
@@ -93,6 +122,9 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        // Ensure we're using the dbai connection
+        $user->setConnection('dbai');
+        
         // Prevent deleting yourself
         if ($user->id === auth()->id()) {
             return redirect()->route('users.index')

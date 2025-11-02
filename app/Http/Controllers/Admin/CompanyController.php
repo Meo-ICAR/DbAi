@@ -14,9 +14,13 @@ class CompanyController extends Controller
     /**
      * Display a listing of the companies.
      */
+    /**
+     * Display a listing of the companies.
+     */
     public function index()
     {
-        $companies = Company::latest()->paginate(10);
+        // Explicitly use the dbai connection
+        $companies = (new Company())->setConnection('dbai')->latest()->paginate(10);
         return view('admin.companies.index', compact('companies'));
     }
 
@@ -33,11 +37,19 @@ class CompanyController extends Controller
      */
     public function store(Request $request)
     {
+        // Set the connection for the validator to use the 'dbai' connection
+        $connection = config('database.default');
+        config(['database.default' => 'dbai']);
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'urlogo' => 'nullable|url|max:255',
             'url_attivazione' => 'nullable|url|max:255',
-            'email_admin' => 'required|email|unique:companies,email_admin',
+            'email_admin' => [
+                'required',
+                'email',
+                Rule::unique('companies', 'email_admin')
+            ],
             'db_secrete' => 'required|string|min:8',
             'db_connection' => 'required|string|in:mysql,pgsql,sqlsrv',
             'db_host' => 'required|string|max:255',
@@ -46,6 +58,9 @@ class CompanyController extends Controller
             'db_username' => 'required|string|max:255',
             'db_password' => 'required|string|min:8',
         ]);
+        
+        // Restore the default connection
+        config(['database.default' => $connection]);
 
         // Generate a random secret if not provided
         if (empty($validated['db_secrete'])) {
