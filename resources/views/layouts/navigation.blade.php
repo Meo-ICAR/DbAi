@@ -24,30 +24,30 @@
                 <x-nav-link :href="route('admin.companies.index')" :active="request()->routeIs('admin.companies.*')">
                     <i class="fas fa-building me-1"></i>{{ __('Aziende') }}
                 </x-nav-link>
-                
+
                 @php
                     // Check if user has any admin permissions
                     $hasAdminAccess = auth()->check() && (
-                        auth()->user()->hasRole('admin') || 
+                        auth()->user()->hasRole('admin') ||
                         auth()->user()->hasPermissionTo('view users') ||
                         auth()->user()->hasPermissionTo('view roles') ||
                         auth()->user()->hasPermissionTo('view permissions')
                     );
                 @endphp
-                
+
                 @if($hasAdminAccess)
                     @if(auth()->user()->can('view users'))
                     <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
                         <i class="fas fa-users me-1"></i>{{ __('Utenti') }}
                     </x-nav-link>
                     @endif
-                    
+
                     @if(auth()->user()->can('view roles'))
                     <x-nav-link :href="route('admin.users.roles.index')" :active="request()->routeIs('admin.users.roles.*')">
                         <i class="fas fa-user-shield me-1"></i>{{ __('Ruoli') }}
                     </x-nav-link>
                     @endif
-                    
+
                     @if(auth()->user()->can('view permissions'))
                     <x-nav-link :href="route('permissions.index')" :active="request()->routeIs('permissions.*')">
                         <i class="fas fa-key me-1"></i>{{ __('Permessi') }}
@@ -81,8 +81,8 @@
                             @if(auth()->user()->company && auth()->user()->company->urllogo)
                                 <div class="px-4 py-2 border-t border-gray-200">
                                     <div class="flex items-center">
-                                        <img src="{{ asset(auth()->user()->company->urllogo) }}" 
-                                             alt="{{ auth()->user()->company->name }}" 
+                                        <img src="{{ asset(auth()->user()->company->urllogo) }}"
+                                             alt="{{ auth()->user()->company->name }}"
                                              class="h-8 w-8 rounded-full object-cover mr-2">
                                         <span class="text-sm text-gray-700">{{ auth()->user()->company->name }}</span>
                                     </div>
