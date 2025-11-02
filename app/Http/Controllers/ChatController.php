@@ -8,7 +8,8 @@ use App\Http\Controllers\HistoryController;
 use Illuminate\Http\Request;
 use NeuronAI\Chat\Messages\UserMessage;
 use NeuronAI\Chat\Enums\MessageRole;
-use NeuronAI\Chat\Message;
+use NeuronAI\Chat\Messages\Message;
+
 
 class ChatController extends Controller
 {
