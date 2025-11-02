@@ -74,8 +74,20 @@ class CompanyController extends Controller
      */
     public function edit(Company $company)
     {
+        // Create a copy of the company to avoid modifying the original
+        $companyData = $company->toArray();
+        
         // Decrypt the password for editing
-        $company->db_password = decrypt($company->db_password);
+        try {
+            $companyData['db_password'] = $company->db_password ? decrypt($company->db_password) : '';
+        } catch (\Exception $e) {
+            // If decryption fails, set empty password
+            $companyData['db_password'] = '';
+        }
+        
+        // Create a new Company instance with decrypted password
+        $company = new \App\Models\Company($companyData);
+        
         return view('admin.companies.edit', compact('company'));
     }
 
