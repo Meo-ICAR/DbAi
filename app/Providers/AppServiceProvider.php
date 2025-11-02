@@ -23,36 +23,26 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Set the default connection for all models to 'dbai'
+        $this->app->resolving('db', function ($db) {
+            $db->setDefaultConnection('dbai');
+        });
+
         // Debug logging
         $host = request()->getHost();
-        /*
-        Log::info('AppServiceProvider booting', [
-            'host' => $host,
-            'full_url' => request()->fullUrl(),
-            'time' => now()->toDateTimeString()
-        ]);
-        */
+        
         // Set database based on the current host
         if (str_ends_with($host, 'hassisto.com')) {
-          //  Log::info('Setting database to proforma for host: ' . $host);
-             $olddb = config('database.connections.mysql.database');
+            $olddb = config('database.connections.mysql.database');
             // Update database configuration
             if ($olddb != 'proforma') {
-            config(['database.connections.mysql.database' => 'proforma']);
-
-            // Reconnect to the database with new settings
-            DB::purge('mysql');
-            DB::reconnect('mysql');
-          /*
-            Log::info('Database connection updated', [
-                'database' => config('database.connections.mysql.database')
-            ]);
-            */
+                config(['database.connections.mysql.database' => 'proforma']);
+                // Reconnect to the database with new settings
+                DB::purge('mysql');
+                DB::reconnect('mysql');
+            }
         }
         else {
            // Log::info('Database connection not updated', [ 'database' => $olddb ]);
         }
-
     }
-}
-}
