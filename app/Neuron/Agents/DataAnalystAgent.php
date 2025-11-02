@@ -19,6 +19,7 @@ use NeuronAI\Chat\History\InMemoryChatHistory;
 use NeuronAI\Chat\History\ChatHistoryInterface;
 
 
+
 class DataAnalystAgent extends Agent
 {
      protected function provider(): AIProviderInterface
@@ -31,7 +32,7 @@ class DataAnalystAgent extends Agent
         );
     }
 
-    protected function chatHistory()
+    protected function chatHistory(): \NeuronAI\Chat\History\ChatHistoryInterface
     {
         return new InMemoryChatHistory(
             contextWindow: 50000
