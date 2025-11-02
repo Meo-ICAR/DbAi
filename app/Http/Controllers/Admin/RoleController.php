@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\DB;
 
 class RoleController extends Controller
 {
@@ -59,6 +60,40 @@ class RoleController extends Controller
     {
         $role->load('permissions');
         return view('admin.roles.show', compact('role'));
+    }
+    
+    /**
+     * Show the form for editing role permissions.
+     */
+    public function permissions(Role $role)
+    {
+        $permissions = Permission::orderBy('name')->get();
+        $role->load('permissions');
+        
+        return view('admin.roles.permissions', compact('role', 'permissions'));
+    }
+    
+    /**
+     * Sync permissions for the specified role.
+     */
+    public function syncPermissions(Request $request, Role $role)
+    {
+        try {
+            DB::beginTransaction();
+            
+            $permissions = $request->input('permissions', []);
+            $role->syncPermissions($permissions);
+            
+            DB::commit();
+            
+            return redirect()
+                ->route('admin.roles.permissions', $role)
+                ->with('success', 'Permessi aggiornati con successo!');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Errore durante l\'aggiornamento dei permessi: ' . $e->getMessage());
+        }
     }
 
     /**

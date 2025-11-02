@@ -40,8 +40,12 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['auth', 'role:admin'])->group(function () {
         // Role Management
         Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class);
-        Route::post('roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'updatePermissions'])
-            ->name('roles.permissions.update');
+        
+        // Role Permissions Management
+        Route::get('roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'permissions'])
+            ->name('admin.roles.permissions');
+        Route::put('roles/{role}/permissions/sync', [\App\Http\Controllers\Admin\RoleController::class, 'syncPermissions'])
+            ->name('admin.roles.permissions.sync');
             
         // Permission Management
         Route::resource('permissions', \App\Http\Controllers\Admin\PermissionController::class)->except(['show']);
