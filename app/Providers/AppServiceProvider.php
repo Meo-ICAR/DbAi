@@ -5,13 +5,16 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
+     *
+     * @return void
      */
-    public function register(): void
+    public function register()
     {
         $this->app->singleton(\App\Neuron\Agents\DataAnalystAgent::class, function ($app) {
             return new \App\Neuron\Agents\DataAnalystAgent();
@@ -20,8 +23,10 @@ class AppServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap any application services.
+     *
+     * @return void
      */
-    public function boot(): void
+    public function boot()
     {
         // Set the default connection for all models to 'dbai'
         $this->app->resolving('db', function ($db) {
@@ -30,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Debug logging
         $host = request()->getHost();
-        
+
         // Set database based on the current host
         if (str_ends_with($host, 'hassisto.com')) {
             $olddb = config('database.connections.mysql.database');
@@ -42,6 +47,7 @@ class AppServiceProvider extends ServiceProvider
                 DB::reconnect('mysql');
             }
         } else {
-            // Log::info('Database connection not updated', ['database' => $olddb]);
+            // Log::info('Database connection not updated', ['database' => $olddb ?? 'not set']);
         }
     }
+}
