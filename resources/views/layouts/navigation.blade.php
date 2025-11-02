@@ -54,7 +54,6 @@
                     </x-nav-link>
                     @endif
                 @endif
-                @endcan
             </div>
 
             <!-- Settings Dropdown -->
