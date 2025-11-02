@@ -10,6 +10,7 @@ class CategoryMenu extends Model
     use HasFactory;
     
     protected $connection = 'dbai';
+    protected $table = 'category_menus'; // Explicitly set the table name
 
     protected $fillable = [
         'name',
