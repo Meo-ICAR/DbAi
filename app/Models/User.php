@@ -8,7 +8,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -34,7 +33,7 @@ class User extends Authenticatable
     /**
      * The roles that belong to the user.
      */
-    public function roles(): BelongsToMany
+    public function roles()
     {
         return $this->morphToMany(
             config('permission.models.role'),
