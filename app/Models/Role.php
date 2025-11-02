@@ -23,4 +23,18 @@ class Role extends SpatieRole
         parent::__construct($attributes);
         $this->setTable(config('permission.table_names.roles'));
     }
+
+    /**
+     * The users that belong to the role.
+     */
+    public function users(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(
+            config('auth.providers.users.model'),
+            'dbai.role_user',
+            'role_id',
+            'user_id'
+        )->withPivot('created_at', 'updated_at')
+         ->withTimestamps();
+    }
 }
