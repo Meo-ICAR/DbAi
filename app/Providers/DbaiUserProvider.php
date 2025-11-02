@@ -21,11 +21,12 @@ class DbaiUserProvider extends EloquentUserProvider
             return;
         }
 
-        // First we will add each credential element to the query as a where clause.
-        // Then we can execute the query and, if we found a user, return it in a
-        // Eloquent User "model" that will be utilized by the Guard instances.
-        $query = $this->newModelQuery()
-                    ->setConnection('dbai'); // Force dbai connection
+        // Set the connection on the model instance first
+        $model = $this->createModel();
+        $model->setConnection('dbai');
+
+        // Create a new query with the model's connection
+        $query = $model->newQuery();
 
         foreach ($credentials as $key => $value) {
             if (str_contains($key, 'password')) {
@@ -51,9 +52,9 @@ class DbaiUserProvider extends EloquentUserProvider
     public function retrieveById($identifier)
     {
         $model = $this->createModel();
+        $model->setConnection('dbai');
         
-        return $this->newModelQuery($model)
-                    ->setConnection('dbai') // Force dbai connection
+        return $model->newQuery()
                     ->where($model->getAuthIdentifierName(), $identifier)
                     ->first();
     }
@@ -68,14 +69,14 @@ class DbaiUserProvider extends EloquentUserProvider
     public function retrieveByToken($identifier, $token)
     {
         $model = $this->createModel();
+        $model->setConnection('dbai');
 
-        $retrievedModel = $this->newModelQuery($model)
-                            ->setConnection('dbai') // Force dbai connection
+        $retrievedModel = $model->newQuery()
                             ->where($model->getAuthIdentifierName(), $identifier)
                             ->first();
 
         if (! $retrievedModel) {
-            return;
+            return null;
         }
 
         $rememberToken = $retrievedModel->getRememberToken();
