@@ -35,20 +35,14 @@ class UserRoleController extends Controller
         if (request()->has('role') && !empty(request('role'))) {
             $roleId = request('role');
             $query->whereHas('roles', function($q) use ($roleId) {
-                $role = new Role();
-                $role->setConnection('dbai');
-                $q->setModel($role)
-                  ->where('roles.id', $roleId);
+                $q->where('id', $roleId);
             });
         }
         
         $users = $query->orderBy('name')->paginate(15);
     
         // Load roles with their permissions and count of users using Spatie's methods
-        $role = new Role();
-        $role->setConnection('dbai');
-        
-        $roles = $role->with(['permissions', 'users'])
+        $roles = Role::with('permissions')
             ->withCount('users')
             ->get()
             ->map(function ($role) {
