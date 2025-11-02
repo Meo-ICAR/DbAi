@@ -12,9 +12,9 @@ class ChatController extends Controller
 {
     protected $agent;
 
-    public function __construct()
+    public function __construct(DataAnalystAgent $agent)
     {
-        $this->agent = new DataAnalystAgent();
+        $this->agent = $agent;
     }
 
     public function index()
