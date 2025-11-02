@@ -14,6 +14,16 @@
                 <div x-data="{ showInfo: false }">
                     <x-info-button :page="$page ?? 'default'" />
                 </div>
+                @auth
+                    @if(auth()->user()->company && auth()->user()->company->urllogo)
+                        <div class="flex items-center space-x-2 bg-blue-700 bg-opacity-50 px-3 py-1 rounded-full">
+                            <img src="{{ asset(auth()->user()->company->urllogo) }}" 
+                                 alt="{{ auth()->user()->company->name }}" 
+                                 class="h-8 w-8 rounded-full object-cover border-2 border-white">
+                            <span class="text-sm font-medium">{{ auth()->user()->company->name }}</span>
+                        </div>
+                    @endif
+                @endauth
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="text-white hover:bg-blue-700 px-3 py-2 rounded flex items-center">
