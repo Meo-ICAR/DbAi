@@ -142,6 +142,7 @@ class HistoryController extends Controller
             'dashboardorder' => 'nullable|integer',
             'masterquery' => 'nullable|exists:histories,id',
             'slavedashboard' => 'nullable|integer|min:0|max:100',
+            'categorymenu_id' => 'nullable|exists:categorymenu,id',
         ]);
 
         $updateData = [
@@ -151,6 +152,7 @@ class HistoryController extends Controller
             'submission_date' => now(),
             'masterquery' => $validated['masterquery'] ?? null,
             'slavedashboard' => $validated['slavedashboard'] ?? 0,
+            'categorymenu_id' => $validated['categorymenu_id'] ?? null,
             'database_name' => DB::getDatabaseName()
         ];
 

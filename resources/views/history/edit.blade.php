@@ -19,16 +19,37 @@
                 @csrf
                 @method('PUT')
 
-                <div class="mb-6">
-                    <label for="message" class="block text-sm font-medium text-gray-700 mb-1">
-                        Message
-                    </label>
-                    <input type="text" name="message" id="message" value="{{ old('message', $history->message) }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                           required>
-                    @error('message')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="mb-6">
+                        <label for="message" class="block text-sm font-medium text-gray-700 mb-1">
+                            Message
+                        </label>
+                        <input type="text" name="message" id="message" value="{{ old('message', $history->message) }}"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                               required>
+                        @error('message')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="categorymenu_id" class="block text-sm font-medium text-gray-700 mb-1">
+                            Category
+                        </label>
+                        <select name="categorymenu_id" id="categorymenu_id"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <option value="">-- Select a Category --</option>
+                            @foreach(\App\Models\CategoryMenu::orderBy('name')->get() as $category)
+                                <option value="{{ $category->id }}" 
+                                    {{ old('categorymenu_id', $history->categorymenu_id) == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('categorymenu_id')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
 
                    <!-- Add this new field for dashboard order -->

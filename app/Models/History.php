@@ -3,8 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Scopes\DatabaseScope; // Importa lo Scope
+use App\Models\Scopes\DatabaseScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\CategoryMenu;
 
 
 class History extends Model
@@ -33,7 +34,8 @@ class History extends Model
         'nviewed',
         'masterquery',
         'slavedashboard',
-        'database_name'  // Add this line
+        'database_name',
+        'categorymenu_id'  // Add category menu reference
     ];
 
     protected $casts = [
@@ -55,6 +57,14 @@ class History extends Model
     public function slaves()
     {
         return $this->hasMany(History::class, 'masterquery');
+    }
+
+    /**
+     * Get the category menu that this history belongs to.
+     */
+    public function categoryMenu()
+    {
+        return $this->belongsTo(CategoryMenu::class, 'categorymenu_id');
     }
 
     /**
