@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Role;
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
@@ -16,8 +16,10 @@ class UserRoleController extends Controller
      */
     public function index()
     {
-        // Ensure we're using the dbai connection
-        $user = new User();
+        $users = User::with('roles')->paginate(10);
+        $roles = Role::all();
+        
+        return view('admin.users.roles.index', compact('users', 'roles'));
         $user->setConnection('dbai');
         
         $query = $user->with('roles');
@@ -141,27 +143,22 @@ class UserRoleController extends Controller
     }
     
     /**
-     * Process bulk role assignment.
+     * Process bulk role assignments.
      */
     public function processBulkAssign(Request $request)
     {
-        // Temporarily set the default connection for validation
-        $connection = config('database.default');
-        config(['database.default' => 'dbai']);
-        
-        $request->validate([
+        $validated = $request->validate([
             'users' => 'required|array',
             'users.*' => 'exists:users,id',
             'roles' => 'required|array',
             'roles.*' => 'exists:roles,id',
-            'action' => 'required|in:assign,remove',
         ]);
         
-        // Restore the default connection
-        config(['database.default' => $connection]);
+        $users = User::whereIn('id', $validated['users'])->get();
         
-        // Use the dbai connection for the query
-        $user = new User();
+        foreach ($users as $user) {
+            $user->sync($validated['roles']);
+        }
         $user->setConnection('dbai');
         
         $users = $user->whereIn('id', $request->users)->get();

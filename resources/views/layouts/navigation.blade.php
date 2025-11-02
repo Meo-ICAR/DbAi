@@ -21,16 +21,24 @@
             <!-- Settings Dropdown -->
             <!-- Navigation Links -->
             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
-                    {{ __('Utenti') }}
-                </x-nav-link>
                 <x-nav-link :href="route('admin.companies.index')" :active="request()->routeIs('admin.companies.*')">
                     {{ __('Aziende') }}
                 </x-nav-link>
-                <x-nav-link :href="route('admin.users.roles.index')" :active="request()->routeIs('admin.users.roles.*')">
-                    {{ __('Ruoli') }}
+                @can('view users')
+                <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                    {{ __('Utenti') }}
                 </x-nav-link>
-              
+                @endcan
+                @can('view roles')
+                <x-nav-link :href="route('admin.users.roles.index')" :active="request()->routeIs('admin.users.roles.*')">
+                    <i class="fas fa-user-shield me-1"></i>{{ __('Gestione Ruoli') }}
+                </x-nav-link>
+                @endcan
+                @can('view permissions')
+                <x-nav-link :href="route('permissions.index')" :active="request()->routeIs('permissions.*')">
+                    <i class="fas fa-key me-1"></i>{{ __('Permessi') }}
+                </x-nav-link>
+                @endcan
             </div>
 
             <!-- Settings Dropdown -->

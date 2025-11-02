@@ -36,12 +36,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/bulk-assign', [\App\Http\Controllers\Admin\UserRoleController::class, 'processBulkAssign'])->name('process-bulk-assign');
     });
 
-    // Role Management Routes
-    Route::prefix('roles')->name('admin.roles.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Admin\RoleController::class, 'index'])->name('index');
-        Route::post('/', [\App\Http\Controllers\Admin\RoleController::class, 'store'])->name('store');
-        Route::put('/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'update'])->name('update');
-        Route::delete('/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'destroy'])->name('destroy');
+    // Role & Permission Management Routes
+    Route::middleware(['auth', 'role:admin'])->group(function () {
+        // Role Management
+        Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class);
+        Route::post('roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'updatePermissions'])
+            ->name('roles.permissions.update');
+            
+        // Permission Management
+        Route::resource('permissions', \App\Http\Controllers\Admin\PermissionController::class)->except(['show']);
     });
 
     // History Routes
