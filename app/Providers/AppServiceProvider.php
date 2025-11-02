@@ -41,8 +41,7 @@ class AppServiceProvider extends ServiceProvider
                 DB::purge('mysql');
                 DB::reconnect('mysql');
             }
-        }
-        else {
-           // Log::info('Database connection not updated', [ 'database' => $olddb ]);
+        } else {
+            // Log::info('Database connection not updated', ['database' => $olddb]);
         }
     }
