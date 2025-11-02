@@ -4,17 +4,16 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Traits\HasRoles; // 1. Importa il Trait
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
-    use HasRoles; // 2. Usa il Trait
-
-     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     protected $connection = 'dbai'; // Specifica il nome della
 
@@ -38,17 +37,14 @@ class User extends Authenticatable
      */
     public function roles(): BelongsToMany
     {
-        return $this->belongsToMany(Role::class, 'dbai.role_user', 'user_id', 'role_id')
-            ->withPivot('created_at', 'updated_at')
-            ->withTimestamps();
-    }
-
-    /**
-     * Check if user has a specific role.
-     */
-    public function hasRole($roleName): bool
-    {
-        return $this->roles()->where('name', $roleName)->exists();
+        return $this->morphToMany(
+            config('permission.models.role'),
+            'model',
+            config('permission.table_names.model_has_roles'),
+            'model_id',
+            'role_id'
+        )->withPivot('model_type')
+         ->wherePivot('model_type', get_class($this));
     }
 
     /**
