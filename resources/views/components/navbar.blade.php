@@ -15,7 +15,7 @@
                     <x-info-button :page="$page ?? 'default'" />
                 </div>
                 @auth
-                    @if(auth()->user()->company && auth()->user()->company->urllogo)
+                    @if(auth()->user()->company )
                         <div class="flex items-center space-x-2 bg-blue-700 bg-opacity-50 px-3 py-1 rounded-full">
                             <img src="{{ asset(auth()->user()->company->urllogo) }}"
                                  alt="{{ auth()->user()->company->name }}"
