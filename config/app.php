@@ -105,6 +105,24 @@ return [
         ),
     ],
 
+    'providers' => \Illuminate\Support\ServiceProvider::defaultProviders()->merge([
+        /*
+         * Package Service Providers...
+         */
+        \SocialiteProviders\Manager\ServiceProvider::class,
+        \Spatie\Permission\PermissionServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
+
+        /*
+         * Application Service Providers...
+         */
+        App\Providers\AppServiceProvider::class,
+        App\Providers\AuthServiceProvider::class,
+        // App\Providers\BroadcastServiceProvider::class,
+        App\Providers\EventServiceProvider::class,
+        App\Providers\RouteServiceProvider::class,
+    ])->toArray(),
+
     /*
     |--------------------------------------------------------------------------
     | Maintenance Mode Driver
