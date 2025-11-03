@@ -16,8 +16,8 @@ Route::get('/dashboard', [\App\Http\Controllers\HistoryController::class, 'dashb
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-// Apply locale middleware to all routes
-Route::middleware(['auth', 'set-locale'])->group(function () {
+// Apply auth middleware to all routes
+Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
