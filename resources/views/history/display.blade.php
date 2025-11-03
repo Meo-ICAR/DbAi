@@ -228,31 +228,16 @@
 </div>
 
                 
-                // Remove any existing search parameters from URL
-                const url = new URL(window.location);
-                const params = new URLSearchParams(url.search);
-                
-                // Remove search parameter if it exists
-                if (params.has('search')) {
-                    params.delete('search');
-                    window.history.replaceState({}, '', `${url.pathname}?${params.toString()}`);
-                }
-                    if (dirInput) {
-                        dirInput.value = params.get('direction');
-                    } else {
-                        const newInput = document.createElement('input');
-                        newInput.type = 'hidden';
-                        newInput.name = 'direction';
-                        newInput.value = params.get('direction');
-                        form.appendChild(newInput);
-                    }
-                }
-                
-                form.submit();
-            });
-        });
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    document.addEventListener('alpine:init', () => {
+        // Any additional Alpine.js initializations can go here
     });
 </script>
+@endpush
 @push('styles')
 <style>
     /* Highlight matching text */
