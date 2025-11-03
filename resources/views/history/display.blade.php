@@ -38,7 +38,41 @@
 @endphp
 
 @section('content')
-<div class="container mx-auto p-6 w-full" style="max-width: 95%;" x-data="{ searchTerm: '' }">
+<div class="container mx-auto p-6 w-full" style="max-width: 95%;" x-data="{
+    searchTerm: '',
+    
+    filterResults() {
+        const searchTerm = this.searchTerm.trim().toLowerCase();
+        const rows = document.querySelectorAll('#results-table tr[data-searchable]');
+        let hasVisibleRows = false;
+        
+        rows.forEach(row => {
+            if (!searchTerm) {
+                row.style.display = '';
+                hasVisibleRows = true;
+                return;
+            }
+            
+            let rowText = '';
+            const cells = row.querySelectorAll('td');
+            cells.forEach(cell => {
+                rowText += ' ' + cell.textContent.toLowerCase();
+            });
+            
+            if (rowText.includes(searchTerm)) {
+                row.style.display = '';
+                hasVisibleRows = true;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        const noResults = document.getElementById('no-results-message');
+        if (noResults) {
+            noResults.style.display = hasVisibleRows || !searchTerm ? 'none' : '';
+        }
+    }
+}">
     <div class="bg-white rounded-lg shadow-lg p-6">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-800">{{ $history->message }}</h1>
@@ -90,37 +124,7 @@
                            x-model="searchTerm" 
                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
                            placeholder="Search in all columns..."
-                           x-on:input.debounce.300ms="
-                               const searchTerm = $event.target.value.trim().toLowerCase();
-                               const rows = document.querySelectorAll('#results-table tr[data-searchable]');
-                               let hasVisibleRows = false;
-                               
-                               rows.forEach(row => {
-                                   if (!searchTerm) {
-                                       row.style.display = '';
-                                       hasVisibleRows = true;
-                                       return;
-                                   }
-                                   
-                                   let rowText = '';
-                                   // Get text from all cells in the row
-                                   const cells = row.querySelectorAll('td');
-                                   cells.forEach(cell => {
-                                       rowText += ' ' + cell.textContent.toLowerCase();
-                                   });
-                                   
-                                   if (rowText.includes(searchTerm)) {
-                                       row.style.display = '';
-                                       hasVisibleRows = true;
-                                   } else {
-                                       row.style.display = 'none';
-                                   }
-                               });
-                               
-                               const noResults = document.getElementById('no-results-message');
-                               if (noResults) {
-                                   noResults.style.display = hasVisibleRows || !searchTerm ? 'none' : '';
-                               }
+                           x-on:input.debounce.300ms="filterResults()"
                            ">
                 </div>
             </div>
