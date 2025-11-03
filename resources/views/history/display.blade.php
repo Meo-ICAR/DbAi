@@ -44,20 +44,15 @@
     filterResults() {
         const searchTerm = this.searchTerm.trim().toLowerCase();
         const rows = document.querySelectorAll('#results-table tr[data-searchable]');
+        const tfoot = document.querySelector('tfoot');
         let hasVisibleRows = false;
         
-        // Get all footer cells that contain totals
-        const footerCells = document.querySelectorAll('tfoot td[data-total]');
-        const columnIndexes = [];
-        const columnTotals = [];
+        // Show/hide footer based on search
+        if (tfoot) {
+            tfoot.style.display = searchTerm ? 'none' : '';
+        }
         
-        // Initialize totals array
-        footerCells.forEach((cell, index) => {
-            columnIndexes.push(parseInt(cell.dataset.total));
-            columnTotals[index] = 0;
-        });
-        
-        // Process each row
+        // Filter rows
         rows.forEach(row => {
             const rowText = Array.from(row.querySelectorAll('td'))
                 .map(cell => cell.textContent.toLowerCase())
@@ -68,35 +63,6 @@
             
             if (isVisible) {
                 hasVisibleRows = true;
-                
-                // Update totals for visible rows
-                const cells = row.querySelectorAll('td');
-                columnIndexes.forEach((colIndex, i) => {
-                    if (colIndex >= 0 && cells[colIndex]) {
-                        const cellText = cells[colIndex].textContent.trim();
-                        // Remove any non-numeric characters except decimal point and minus
-                        const numericValue = parseFloat(cellText.replace(/[^0-9.-]+/g, ''));
-                        if (!isNaN(numericValue)) {
-                            columnTotals[i] += numericValue;
-                        }
-                    }
-                });
-            }
-        });
-        
-        // Update footer with new totals
-        footerCells.forEach((cell, i) => {
-            if (columnIndexes[i] >= 0) {
-                const value = columnTotals[i];
-                cell.textContent = Number.isInteger(value) 
-                    ? value.toLocaleString() 
-                    : value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-                
-                // Update the count of visible rows
-                if (i === 0 && cell.classList.contains('row-count')) {
-                    const visibleCount = Array.from(rows).filter(r => r.style.display !== 'none').length;
-                    cell.textContent = `N. ${visibleCount}`;
-                }
             }
         });
         
