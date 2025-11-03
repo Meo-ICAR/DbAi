@@ -15,8 +15,8 @@ use NeuronAI\Tools\Toolkits\MySQL\MySQLToolkit;
 use App\Neuron\Tools\LoggingMySQLSelectTool;
 use NeuronAI\Tools\Toolkits\MySQL\MySQLSchemaTool;
 //use NeuronAI\Tools\Toolkits\MySQL\MySQLSelectTool;
-use NeuronAI\Chat\History\InMemoryChatHistory;
 use NeuronAI\Chat\History\ChatHistoryInterface;
+use NeuronAI\Chat\History\SQLChatHistory;
 
 
 
@@ -32,9 +32,17 @@ class DataAnalystAgent extends Agent
         );
     }
 
-    protected function chatHistory(): \NeuronAI\Chat\History\ChatHistoryInterface
+    protected function chatHistory(): ChatHistoryInterface
     {
-        return new InMemoryChatHistory(
+        $connection = config('database.dbai');
+        $config = config("database.connections.{$connection}");
+
+        $pdo = DB::connection()->getPdo();
+
+        return new SQLChatHistory(
+            thread_id: 'THREAD_ID',
+            pdo: $pdo,
+            table: 'chat_history',
             contextWindow: 50000
         );
     }

@@ -11,6 +11,7 @@ use NeuronAI\Chat\Enums\MessageRole;
 use NeuronAI\Chat\Messages\Message;
 
 
+
 class ChatController extends Controller
 {
     protected $agent;
@@ -18,14 +19,14 @@ class ChatController extends Controller
     public function __construct(DataAnalystAgent $agent)
     {
         $this->agent = $agent;
-/*
+
 $response = $agent->chat([
         new Message(MessageRole::USER, "Hi, my company is called Inspector.dev"),
         new Message(MessageRole::ASSISTANT, "Hi, how can I assist you today?"),
         new Message(MessageRole::USER, "What's the name of the company I work for?"),
 
     ]);
-    */
+
     }
 
     public function index()

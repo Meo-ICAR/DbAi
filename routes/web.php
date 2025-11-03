@@ -47,6 +47,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('history/{history}/subdashboard/{filter_column?}/{filter_value?}', [\App\Http\Controllers\HistoryController::class, 'subdashboard'])->name('history.subdashboard');
     Route::post('history/{history}/clone', [\App\Http\Controllers\HistoryController::class, 'clone'])->name('history.clone');
     Route::get('/history/tables', [\App\Http\Controllers\HistoryController::class, 'tables'])->name('history.tables');
+    
+    // Chat History Management Routes
+    Route::resource('chat-history', \App\Http\Controllers\ChatHistoryController::class)->names('chat-history');
  
 });
 
