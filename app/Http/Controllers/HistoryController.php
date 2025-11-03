@@ -16,7 +16,7 @@ class HistoryController extends Controller
     public function tables(Request $request)
     {
         $query = History::where('charttype', 'Table')
-            ->with('category'); // Eager load the category relationship
+            ->with('categoryMenu'); // Eager load the category relationship
         
         // Handle search
         if ($search = $request->input('search')) {
@@ -34,8 +34,8 @@ class HistoryController extends Controller
         
         // Handle category sorting separately as it's a relationship
         if ($sortField === 'category') {
-            $query->leftJoin('categories', 'histories.category_id', '=', 'categories.id')
-                ->orderBy('categories.name', $sortDirection)
+            $query->leftJoin('category_menus', 'histories.categorymenu_id', '=', 'category_menus.id')
+                ->orderBy('category_menus.name', $sortDirection)
                 ->select('histories.*');
         } else {
             $query->orderBy($sortField, $sortDirection);

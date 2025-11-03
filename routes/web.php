@@ -1,19 +1,23 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 
 require __DIR__.'/auth.php';
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Welcome route with language detection
+Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
+
+// Language switcher route
+Route::get('/locale/{locale}', [WelcomeController::class, 'setLocale'])->name('locale.set');
 
 Route::get('/dashboard', [\App\Http\Controllers\HistoryController::class, 'dashboard'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+// Apply locale middleware to all routes
+Route::middleware(['auth', 'set.locale'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

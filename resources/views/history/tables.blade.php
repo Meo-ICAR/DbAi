@@ -71,7 +71,7 @@
                                 @foreach($tables as $table)
                                     <tr class="table-row" data-message="{{ strtolower($table->message) }}">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {{ $table->category ? $table->category->name : 'Nessuna categoria' }}
+                                            {{ $table->categoryMenu ? $table->categoryMenu->name : 'Nessuna categoria' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-normal text-sm text-gray-900 max-w-xs">
                                             <div class="line-clamp-2">
