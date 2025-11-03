@@ -109,14 +109,6 @@ class History extends Model
     }
 
     /**
-     * Get the user that owns the history record.
-     */
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    /**
      * Get the slave queries for this master query.
      */
     public function slaves()
