@@ -24,7 +24,9 @@
                 <x-nav-link :href="route('admin.companies.index')" :active="request()->routeIs('admin.companies.*')">
                     <i class="fas fa-building me-1"></i>{{ __('Aziende') }}
                 </x-nav-link>
-
+                <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                    <i class="fas fa-users me-1"></i>{{ __('Utenti') }}
+                </x-nav-link>
             </div>
 
             <!-- Settings Dropdown -->

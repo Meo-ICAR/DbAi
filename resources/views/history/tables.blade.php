@@ -34,14 +34,45 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Messaggio</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <a href="{{ route('history.tables', ['sort' => 'category', 'direction' => $sortField === 'category' && $sortDirection === 'asc' ? 'desc' : 'asc', 'search' => request('search')]) }}" class="flex items-center">
+                                            Categoria
+                                            @if($sortField === 'category')
+                                                <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ml-1"></i>
+                                            @else
+                                                <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <a href="{{ route('history.tables', ['sort' => 'message', 'direction' => $sortField === 'message' && $sortDirection === 'asc' ? 'desc' : 'asc', 'search' => request('search')]) }}" class="flex items-center">
+                                            Messaggio
+                                            @if($sortField === 'message')
+                                                <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ml-1"></i>
+                                            @else
+                                                <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <a href="{{ route('history.tables', ['sort' => 'created_at', 'direction' => $sortField === 'created_at' && $sortDirection === 'asc' ? 'desc' : 'asc', 'search' => request('search')]) }}" class="flex items-center">
+                                            Data
+                                            @if($sortField === 'created_at')
+                                                <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ml-1"></i>
+                                            @else
+                                                <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                            @endif
+                                        </a>
+                                    </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Azioni</th>
                                 </tr>
                             </thead>
                             <tbody id="tablesBody" class="bg-white divide-y divide-gray-200">
                                 @foreach($tables as $table)
                                     <tr class="table-row" data-message="{{ strtolower($table->message) }}">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ $table->category ? $table->category->name : 'Nessuna categoria' }}
+                                        </td>
                                         <td class="px-6 py-4 whitespace-normal text-sm text-gray-900 max-w-xs">
                                             <div class="line-clamp-2">
                                                 {{ $table->message }}
@@ -85,27 +116,51 @@
     </div>
 </div>
 
+@push('styles')
+<style>
+    th a {
+        display: flex;
+        align-items: center;
+        color: #6b7280;
+        text-decoration: none;
+    }
+    th a:hover {
+        color: #1f2937;
+    }
+    .fa-sort, .fa-sort-up, .fa-sort-down {
+        margin-left: 4px;
+    }
+    .fa-sort {
+        opacity: 0.5;
+    }
+</style>
+@endpush
+
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Auto-submit the form when typing (with a small delay)
     const searchInput = document.querySelector('input[name="search"]');
-    let searchTimer;
-
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimer);
-        searchTimer = setTimeout(() => {
-            this.form.submit();
-        }, 500); // 500ms delay
-    });
+    if (searchInput) {
+        let searchTimer;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => {
+                const url = new URL(window.location.href);
+                url.searchParams.set('search', this.value);
+                window.location.href = url.toString();
+            }, 500); // 500ms delay
+        });
+    }
 
     // Handle the clear button
     const clearButton = document.querySelector('.fa-times');
     if (clearButton) {
         clearButton.addEventListener('click', function(e) {
             e.preventDefault();
-            searchInput.value = '';
-            searchInput.form.submit();
+            const url = new URL(window.location.href);
+            url.searchParams.delete('search');
+            window.location.href = url.toString();
         });
     }
 });

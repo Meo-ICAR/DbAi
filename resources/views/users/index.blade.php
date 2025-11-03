@@ -21,6 +21,7 @@
                 <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
                     <th class="py-3 px-6 text-left">Name</th>
                     <th class="py-3 px-6 text-left">Email</th>
+                    <th class="py-3 px-6 text-left">Company</th>
                     <th class="py-3 px-6 text-center">Actions</th>
                 </tr>
             </thead>
@@ -32,6 +33,9 @@
                         </td>
                         <td class="py-3 px-6 text-left">
                             {{ $user->email }}
+                        </td>
+                        <td class="py-3 px-6 text-left">
+                            {{ $user->company ? $user->company->name : 'N/A' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex items-center justify-end space-x-2">
@@ -60,7 +64,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="3" class="py-4 px-6 text-center text-gray-500">
+                        <td colspan="4" class="py-4 px-6 text-center text-gray-500">
                             No users found.
                         </td>
                     </tr>

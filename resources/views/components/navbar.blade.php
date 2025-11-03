@@ -16,9 +16,9 @@
                 </div>
 
                 @auth
-                          <div class="flex items-center space-x-2 bg-blue-700 bg-opacity-50 px-3 py-1 rounded-full">
-                         <span class="text-sm font-medium">{{ auth()->user()->name }}</span>
-                </div>
+                          <a href="{{ route('profile.edit') }}" class="flex items-center space-x-2 bg-blue-700 bg-opacity-50 px-3 py-1 rounded-full hover:bg-opacity-70 transition-colors">
+                             <span class="text-sm font-medium">{{ auth()->user()->name }}</span>
+                          </a>
                     @if(auth()->user()->company )
                         <div class="flex items-center space-x-2 bg-white bg-opacity-50 px-3 py-1 rounded-full">
                             @if(auth()->user()->company->urlogo)

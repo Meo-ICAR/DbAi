@@ -15,18 +15,41 @@ class HistoryController extends Controller
      */
     public function tables(Request $request)
     {
-        $query = History::where('charttype', 'Table');
+        $query = History::where('charttype', 'Table')
+            ->with('category'); // Eager load the category relationship
         
         // Handle search
         if ($search = $request->input('search')) {
             $query->where('message', 'like', "%{$search}%");
         }
         
-        $tables = $query->orderBy('created_at', 'desc')
-            ->paginate(15)
+        // Handle sorting
+        $sortField = $request->input('sort', 'created_at');
+        $sortDirection = $request->input('direction', 'desc');
+        
+        // Validate sort direction
+        if (!in_array(strtolower($sortDirection), ['asc', 'desc'])) {
+            $sortDirection = 'desc';
+        }
+        
+        // Handle category sorting separately as it's a relationship
+        if ($sortField === 'category') {
+            $query->leftJoin('categories', 'histories.category_id', '=', 'categories.id')
+                ->orderBy('categories.name', $sortDirection)
+                ->select('histories.*');
+        } else {
+            $query->orderBy($sortField, $sortDirection);
+        }
+        
+        $tables = $query->paginate(15)
             ->appends($request->query());
         
-        return view('history.tables', compact('tables'));
+        return view('history.tables', [
+            'tables' => $tables,
+            'sortField' => $sortField,
+            'sortDirection' => $sortDirection,
+            'search' => $request->input('search', '')
+        ]);
     }
 
     /**

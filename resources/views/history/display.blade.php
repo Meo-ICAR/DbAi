@@ -38,15 +38,8 @@
 @endphp
 
 @section('content')
-<div class="container mx-auto p-6 w-full" x-data="{ showFilters: false }" style="max-width: 95%;">
+<div class="container mx-auto p-6 w-full" style="max-width: 95%;" x-data="{ searchTerm: '' }">
     <div class="bg-white rounded-lg shadow-lg p-6">
-        <form action="{{ request()->url() }}" method="GET" id="filter-form">
-            @if(request('sort'))
-                <input type="hidden" name="sort" value="{{ request('sort') }}">
-            @endif
-            @if(request('direction'))
-                <input type="hidden" name="direction" value="{{ request('direction') }}">
-            @endif
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-800">{{ $history->message }}</h1>
             <div class="flex items-center space-x-4">
@@ -57,14 +50,7 @@
                     </a>
                 @endif
 
-                <!-- Add this form for Excel export -->
                 <form action="{{ route('history.display', $history) }}" method="GET" class="inline">
-                    @if(request('sort'))
-                        <input type="hidden" name="sort" value="{{ request('sort') }}">
-                    @endif
-                    @if(request('direction'))
-                        <input type="hidden" name="direction" value="{{ request('direction') }}">
-                    @endif
                     <input type="hidden" name="export" value="1">
                     <button type="submit"
                             class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
@@ -95,6 +81,38 @@
         @endif
 
         @if($results && count($results) > 0)
+            <div class="mb-4">
+                <div class="relative max-w-md">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                    <input type="text" 
+                           x-model="searchTerm" 
+                           class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
+                           placeholder="Search in all columns..."
+                           x-on:input="
+                               const searchTerm = $event.target.value.toLowerCase();
+                               const rows = document.querySelectorAll('#results-table tr[data-searchable]');
+                               let hasVisibleRows = false;
+                               
+                               rows.forEach(row => {
+                                   const rowText = row.textContent.toLowerCase();
+                                   if (rowText.includes(searchTerm)) {
+                                       row.style.display = '';
+                                       hasVisibleRows = true;
+                                   } else {
+                                       row.style.display = 'none';
+                                   }
+                               });
+                               
+                               const noResults = document.getElementById('no-results-message');
+                               if (noResults) {
+                                   noResults.style.display = hasVisibleRows || !searchTerm ? 'none' : '';
+                               }
+                           ">
+                </div>
+            </div>
+            
             <div class="overflow-x-auto text-base">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
@@ -112,63 +130,25 @@
                                     }
                                 @endphp
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    <div class="flex items-center justify-between">
-                                        <span class="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded" 
-                                              onclick="window.location.href='{{ request()->fullUrlWithQuery(['sort' => $column, 'direction' => $isSorted && $sortDirection === 'asc' ? 'desc' : 'asc']) }}#results-table'">
-                                            {{ $column }}
-                                            {!! $sortIcon !!}
-                                        </span>
-                                        @if(!in_array($column, array_keys(array_filter($numericColumns))))
-                                            <button type="button" 
-                                                    class="text-gray-400 hover:text-gray-600 focus:outline-none"
-                                                    @click="showFilters = !showFilters"
-                                                    title="Toggle filters">
-                                                <i class="fas fa-filter"></i>
-                                            </button>
-                                        @endif
-                                    </div>
+                                    <span class="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded" 
+                                          onclick="window.location.href='{{ request()->fullUrlWithQuery(['sort' => $column, 'direction' => $isSorted && $sortDirection === 'asc' ? 'desc' : 'asc']) }}#results-table'">
+                                        {{ $column }}
+                                        {!! $sortIcon !!}
+                                    </span>
                                 </th>
-                            @endforeach
-                        </tr>
-                        <tr class="bg-gray-50" x-show="showFilters" x-transition>
-                            @php
-                                // Get the first row to determine column types
-                                $firstRow = $results[0] ?? null;
-                                $columns = $firstRow ? array_keys((array)$firstRow) : [];
-                            @endphp
-                            @foreach($columns as $column)
-                                @php
-                                    $isNumeric = $numericColumns[$column] ?? false;
-                                    $filterValue = request('filter')[$column] ?? '';
-                                @endphp
-                                <td class="px-2 py-1">
-                                    @if(!$isNumeric)
-                                        <div class="relative">
-                                            <input type="text" 
-                                                   name="filter[{{ $column }}]" 
-                                                   value="{{ $filterValue }}" 
-                                                   placeholder="Filter {{ $column }}" 
-                                                   class="w-full text-xs pl-8 pr-2 py-1 border rounded focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                                                   onchange="this.form.submit()">
-                                            <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                                                <i class="fas fa-search text-gray-400 text-xs"></i>
-                                            </div>
-                                            @if($filterValue)
-                                                <a href="{{ request()->fullUrlWithQuery(['filter' => array_merge(request('filter', []), [$column => ''])]) }}" 
-                                                   class="absolute inset-y-0 right-0 pr-2 flex items-center text-gray-400 hover:text-gray-600">
-                                                    <i class="fas fa-times text-xs"></i>
-                                                </a>
-                                            @endif
-                                        </div>
-                                    @endif
-                                </td>
                             @endforeach
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200" id="results-table">
 
+                        <tr id="no-results-message" style="display: none;">
+                            <td colspan="100%" class="px-6 py-4 text-center text-gray-500">
+                                No matching records found
+                            </td>
+                        </tr>
                         @foreach($results as $index => $row)
-                            <tr class="{{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50' }} hover:bg-blue-100 [&:hover>*]:text-blue-800 transition-colors duration-200">
+                            <tr class="{{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50' }} hover:bg-blue-100 [&:hover>*]:text-blue-800 transition-colors duration-200" 
+                                data-searchable>
                                 @foreach($row as $column => $value)
                                     @php
                                         $isNumeric = $numericColumns[$column] ?? false;
@@ -227,38 +207,19 @@
                 <p class="text-gray-500">No results found.</p>
             </div>
         @endif
-        </form>
     </div>
 </div>
 
-<script>
-    // Submit form when clicking on sortable headers
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('filter-form');
-        const sortableHeaders = document.querySelectorAll('th[onclick]');
-        
-        sortableHeaders.forEach(header => {
-            header.addEventListener('click', function(e) {
-                e.preventDefault();
-                const url = new URL(this.getAttribute('onclick').match(/window\.location\.href='([^']+)'/)[1]);
+                
+                // Remove any existing search parameters from URL
+                const url = new URL(window.location);
                 const params = new URLSearchParams(url.search);
                 
-                // Update sort and direction in our form
-                if (params.has('sort')) {
-                    const sortInput = form.querySelector('input[name="sort"]');
-                    if (sortInput) {
-                        sortInput.value = params.get('sort');
-                    } else {
-                        const newInput = document.createElement('input');
-                        newInput.type = 'hidden';
-                        newInput.name = 'sort';
-                        newInput.value = params.get('sort');
-                        form.appendChild(newInput);
-                    }
+                // Remove search parameter if it exists
+                if (params.has('search')) {
+                    params.delete('search');
+                    window.history.replaceState({}, '', `${url.pathname}?${params.toString()}`);
                 }
-                
-                if (params.has('direction')) {
-                    const dirInput = form.querySelector('input[name="direction"]');
                     if (dirInput) {
                         dirInput.value = params.get('direction');
                     } else {
@@ -275,4 +236,19 @@
         });
     });
 </script>
+@push('styles')
+<style>
+    /* Highlight matching text */
+    .highlight {
+        background-color: #fef08a;
+        padding: 0.1em 0.2em;
+        border-radius: 0.25em;
+    }
+    
+    /* Search input focus state */
+    #searchInput:focus {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+</style>
+@endpush
 @endsection
