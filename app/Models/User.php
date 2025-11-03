@@ -7,11 +7,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $connection = 'dbai'; // Specifica il nome della
 
@@ -30,28 +29,6 @@ class User extends Authenticatable
         'email_verified_at',
     ];
 
-    /**
-     * The roles that belong to the user.
-     */
-    public function roles()
-    {
-        return $this->morphToMany(
-            config('permission.models.role'),
-            'model',
-            config('permission.table_names.model_has_roles'),
-            'model_id',
-            'role_id'
-        )->withPivot('model_type')
-         ->wherePivot('model_type', get_class($this));
-    }
-
-    /**
-     * Check if user has any of the given roles.
-     */
-    public function hasAnyRole(array $roles): bool
-    {
-        return $this->roles()->whereIn('name', $roles)->exists();
-    }
 
     /**
      * The attributes that should be hidden for serialization.
