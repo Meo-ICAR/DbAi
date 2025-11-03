@@ -12,6 +12,10 @@ Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 // Language switcher route
 Route::get('/locale/{locale}', [WelcomeController::class, 'setLocale'])->name('locale.set');
 
+// Public shareable route (no auth required)
+Route::get('/history/share/{token}', [\App\Http\Controllers\HistoryController::class, 'share'])
+    ->name('history.share');
+
 Route::get('/dashboard', [\App\Http\Controllers\HistoryController::class, 'dashboard'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
@@ -35,6 +39,10 @@ Route::middleware(['auth'])->group(function () {
 
     // History Routes
     Route::resource('history', \App\Http\Controllers\HistoryController::class);
+    
+    // Shareable routes
+    Route::post('history/{history}/share', [\App\Http\Controllers\HistoryController::class, 'generateShareLink'])
+        ->name('history.generate-share-link');
 
     // Tables Route
     Route::get('/tables', [\App\Http\Controllers\HistoryController::class, 'tables'])->name('tables');

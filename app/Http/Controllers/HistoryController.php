@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Exports\HistoryExport;
+use App\Models\CategoryMenu;
 use App\Models\History;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 
 class HistoryController extends Controller
@@ -17,21 +19,21 @@ class HistoryController extends Controller
     {
         $query = History::where('charttype', 'Table')
             ->with('categoryMenu'); // Eager load the category relationship
-        
+
         // Handle search
         if ($search = $request->input('search')) {
             $query->where('message', 'like', "%{$search}%");
         }
-        
+
         // Handle sorting
         $sortField = $request->input('sort', 'created_at');
         $sortDirection = $request->input('direction', 'desc');
-        
+
         // Validate sort direction
         if (!in_array(strtolower($sortDirection), ['asc', 'desc'])) {
             $sortDirection = 'desc';
         }
-        
+
         // Handle category sorting separately as it's a relationship
         if ($sortField === 'category') {
             $query->leftJoin('category_menus', 'histories.categorymenu_id', '=', 'category_menus.id')
@@ -40,10 +42,10 @@ class HistoryController extends Controller
         } else {
             $query->orderBy($sortField, $sortDirection);
         }
-        
+
         $tables = $query->paginate(15)
             ->appends($request->query());
-        
+
         return view('history.tables', [
             'tables' => $tables,
             'sortField' => $sortField,
@@ -104,12 +106,13 @@ class HistoryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'message' => 'required|string|max:1000',
+            'message' => 'required|string',
             'sqlstatement' => 'required|string',
-            'charttype' => 'nullable|string|max:50',
+            'charttype' => 'nullable|string',
         ]);
 
-        History::create([
+        $history = History::create([
+            'user_id' => auth()->id(),
             'message' => $validated['message'],
             'sqlstatement' => $validated['sqlstatement'],
             'charttype' => $validated['charttype'] ?? 'Pie Chart',
@@ -118,15 +121,51 @@ class HistoryController extends Controller
         ]);
 
         return redirect()->route('history.index')
-            ->with('success', 'History entry created successfully.');
+            ->with('success', 'History created successfully.');
     }
 
     /**
      * Display the specified history entry.
      */
+    /**
+     * Display the specified history item (regular authenticated view).
+     */
     public function show(History $history)
     {
+        $this->authorize('view', $history);
         return view('history.show', compact('history'));
+    }
+
+    /**
+     * Display the shared history item (public view).
+     */
+    public function share($token)
+    {
+        $history = History::where('share_token', $token)
+            ->where(function($query) {
+                $query->whereNull('share_expires_at')
+                      ->orWhere('share_expires_at', '>', now());
+            })
+            ->firstOrFail();
+
+        return view('history.share', compact('history'));
+    }
+
+    /**
+     * Generate a shareable link for the history item.
+     */
+    public function generateShareLink(History $history, Request $request)
+    {
+        $this->authorize('view', $history);
+
+        $hours = $request->input('hours', 24);
+        $url = $history->generateShareLink($hours);
+
+        return back()->with([
+            'status' => 'share-link-generated',
+            'share_url' => $url,
+            'expires_at' => $history->share_expires_at
+        ]);
     }
 
     /**

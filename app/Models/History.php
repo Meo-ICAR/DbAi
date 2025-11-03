@@ -27,6 +27,8 @@ class History extends Model
 
     protected $fillable = [
         'user_id',
+        'share_token',
+        'share_expires_at',
         'submission_date',
         'message',
         'sqlstatement',
@@ -36,7 +38,14 @@ class History extends Model
         'masterquery',
         'slavedashboard',
         'database_name',
-        'categorymenu_id'  // Add category menu reference
+        'categorymenu_id'
+    ];
+
+    protected $dates = [
+        'submission_date',
+        'share_expires_at',
+        'created_at',
+        'updated_at'
     ];
 
     protected $casts = [
@@ -70,6 +79,41 @@ class History extends Model
     public function master()
     {
         return $this->belongsTo(History::class, 'masterquery');
+    }
+
+    /**
+     * Generate a shareable link for this history item
+     *
+     * @param int $hours Number of hours until the link expires (null for no expiration)
+     * @return string The shareable URL
+     */
+    public function generateShareLink($hours = 24)
+    {
+        $this->update([
+            'share_token' => \Illuminate\Support\Str::random(40),
+            'share_expires_at' => $hours ? now()->addHours($hours) : null
+        ]);
+
+        return route('history.share', $this->share_token);
+    }
+
+    /**
+     * Check if the history item is currently shareable
+     *
+     * @return bool
+     */
+    public function isShareable()
+    {
+        return $this->share_token && 
+               (!$this->share_expires_at || $this->share_expires_at->isFuture());
+    }
+
+    /**
+     * Get the user that owns the history record.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     /**
