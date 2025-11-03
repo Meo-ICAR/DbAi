@@ -46,27 +46,61 @@
         const rows = document.querySelectorAll('#results-table tr[data-searchable]');
         let hasVisibleRows = false;
         
+        // Get all footer cells that contain totals
+        const footerCells = document.querySelectorAll('tfoot td[data-total]');
+        const columnIndexes = [];
+        const columnTotals = [];
+        
+        // Initialize totals array
+        footerCells.forEach((cell, index) => {
+            columnIndexes.push(parseInt(cell.dataset.total));
+            columnTotals[index] = 0;
+        });
+        
+        // Process each row
         rows.forEach(row => {
-            if (!searchTerm) {
-                row.style.display = '';
-                hasVisibleRows = true;
-                return;
-            }
+            const rowText = Array.from(row.querySelectorAll('td'))
+                .map(cell => cell.textContent.toLowerCase())
+                .join(' ');
+                
+            const isVisible = !searchTerm || rowText.includes(searchTerm);
+            row.style.display = isVisible ? '' : 'none';
             
-            let rowText = '';
-            const cells = row.querySelectorAll('td');
-            cells.forEach(cell => {
-                rowText += ' ' + cell.textContent.toLowerCase();
-            });
-            
-            if (rowText.includes(searchTerm)) {
-                row.style.display = '';
+            if (isVisible) {
                 hasVisibleRows = true;
-            } else {
-                row.style.display = 'none';
+                
+                // Update totals for visible rows
+                const cells = row.querySelectorAll('td');
+                columnIndexes.forEach((colIndex, i) => {
+                    if (colIndex >= 0 && cells[colIndex]) {
+                        const cellText = cells[colIndex].textContent.trim();
+                        // Remove any non-numeric characters except decimal point and minus
+                        const numericValue = parseFloat(cellText.replace(/[^0-9.-]+/g, ''));
+                        if (!isNaN(numericValue)) {
+                            columnTotals[i] += numericValue;
+                        }
+                    }
+                });
             }
         });
         
+        // Update footer with new totals
+        footerCells.forEach((cell, i) => {
+            if (columnIndexes[i] >= 0) {
+                const value = columnTotals[i];
+                cell.textContent = Number.isInteger(value) 
+                    ? value.toLocaleString() 
+                    : value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                
+                // Update the count of visible rows
+                if (i === 0 && cell.classList.contains('row-count')) {
+                    const visibleCount = Array.from(rows).filter(r => r.style.display !== 'none').length;
+                    cell.textContent = `N. ${visibleCount}`;
+                }
+            }
+        });
+        
+        // Show/hide no results message
         const noResults = document.getElementById('no-results-message');
         if (noResults) {
             noResults.style.display = hasVisibleRows || !searchTerm ? 'none' : '';
@@ -199,11 +233,15 @@
                         @if($hasNumericColumns || true)
                             <tfoot class="bg-gray-50 border-t-2 border-gray-200">
                                 <tr class="font-bold">
-                                    <td class="px-6 py-3 text-sm text-gray-500">N. {{ count($results) }}</td>
-                                    @php $first = true; @endphp
+                                    <td class="px-6 py-3 text-sm text-gray-500 row-count" data-total="-1">N. {{ count($results) }}</td>
+                                    @php 
+                                        $first = true;
+                                        $colIndex = 0;
+                                    @endphp
                                     @foreach($totals as $column => $total)
                                         @if(!$first)
-                                            <td class="px-6 py-3 text-sm {{ $total !== null ? 'text-right font-mono' : 'text-gray-500' }}">
+                                            <td class="px-6 py-3 text-sm {{ $total !== null ? 'text-right font-mono' : 'text-gray-500' }}" 
+                                                data-total="{{ $colIndex }}">
                                                 @if($total !== null)
                                                     {{ is_float($total) ? number_format($total, 2, ',', '.') : number_format($total, 0, ',', '.') }}
                                                 @else
@@ -211,7 +249,10 @@
                                                 @endif
                                             </td>
                                         @endif
-                                        @php $first = false; @endphp
+                                        @php 
+                                            $first = false;
+                                            $colIndex++;
+                                        @endphp
                                     @endforeach
                                 </tr>
                             </tfoot>
