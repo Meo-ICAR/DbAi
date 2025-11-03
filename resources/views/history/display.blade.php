@@ -38,6 +38,36 @@
 @endphp
 
 @section('content')
+@if(session('status') === 'share-link-generated')
+    <div class="mb-4 p-4 bg-green-50 border-l-4 border-green-500 rounded">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-check-circle text-green-500"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-green-700">
+                    Shareable link created! It will expire 
+                    @if(session('expires_at'))
+                        {{ \Carbon\Carbon::parse(session('expires_at'))->diffForHumans() }}
+                    @else
+                        never
+                    @endif
+                    .
+                </p>
+                <div class="mt-2 flex">
+                    <input type="text" 
+                           value="{{ session('share_url') }}" 
+                           class="flex-1 text-sm border border-gray-300 rounded-l-md px-3 py-1"
+                           readonly>
+                    <button onclick="copyToClipboard('{{ session('share_url') }}')" 
+                            class="inline-flex items-center px-3 py-1 border border-l-0 border-gray-300 bg-gray-50 text-gray-700 text-sm rounded-r-md hover:bg-gray-100">
+                        <i class="far fa-copy mr-1"></i> Copy
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
 <div class="container mx-auto p-6 w-full" style="max-width: 95%;" x-data="{
     searchTerm: '',
     
@@ -76,7 +106,31 @@
     <div class="bg-white rounded-lg shadow-lg p-6">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-800">{{ $history->message }}</h1>
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2">
+                @auth
+                    @if($history->user_id === auth()->id())
+                        <form action="{{ route('history.generate-share-link', $history) }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" 
+                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                <i class="fas fa-share-alt mr-1"></i> {{ $history->isShareable() ? 'Renew Share' : 'Share' }}
+                            </button>
+                        </form>
+                    @elseif($history->isShareable())
+                        <div class="relative">
+                            <input type="text" 
+                                   id="share-link" 
+                                   value="{{ route('history.share', $history->share_token) }}" 
+                                   class="hidden" 
+                                   readonly>
+                            <button onclick="copyShareLink()" 
+                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <i class="fas fa-copy mr-1"></i> Copy Share Link
+                            </button>
+                        </div>
+                    @endif
+                @endauth
+                
                 @if($history->charttype !== 'Table')
                     <a href="{{ url("/history/{$history->id}/chart") }}"
                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
