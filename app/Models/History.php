@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Scopes\DatabaseScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\CategoryMenu;
+use Illuminate\Support\Facades\Auth;
 
 
 class History extends Model
@@ -21,12 +22,21 @@ class History extends Model
      */
     protected static function booted(): void
     {
-        // Applica il nostro scope globale
+        parent::booted();
+        
+        // Apply our global scope
         static::addGlobalScope(new DatabaseScope);
+        
+        // Automatically set the user_id to the authenticated user when creating a new record
+        static::creating(function ($model) {
+            if (Auth::check()) {
+                $model->user_id = Auth::id();
+            }
+        });
     }
 
     protected $fillable = [
-        'user_id',
+        // 'user_id', // Removed from fillable to prevent mass assignment
         'share_token',
         'share_expires_at',
         'submission_date',
