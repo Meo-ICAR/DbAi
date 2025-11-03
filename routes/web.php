@@ -49,7 +49,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/history/tables', [\App\Http\Controllers\HistoryController::class, 'tables'])->name('history.tables');
     
     // Chat History Management Routes
-    Route::resource('chat-history', \App\Http\Controllers\ChatHistoryController::class)->names('chat-history');
+    Route::resource('chat-history', \App\Http\Controllers\ChatHistoryController::class, [
+        'parameters' => [
+            'chat_history' => 'history'
+        ]
+    ])->names('chat-history');
  
 });
 
