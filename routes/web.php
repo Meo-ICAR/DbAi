@@ -28,28 +28,6 @@ Route::middleware('auth')->group(function () {
     // Company Management Routes
     Route::resource('companies', \App\Http\Controllers\Admin\CompanyController::class)->names('admin.companies');
 
-    // User Role Management Routes
-    Route::prefix('users/roles')->name('admin.users.roles.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Admin\UserRoleController::class, 'index'])->name('index');
-        Route::put('/{user}', [\App\Http\Controllers\Admin\UserRoleController::class, 'update'])->name('update');
-        Route::get('/bulk-assign', [\App\Http\Controllers\Admin\UserRoleController::class, 'bulkAssign'])->name('bulk-assign');
-        Route::post('/bulk-assign', [\App\Http\Controllers\Admin\UserRoleController::class, 'processBulkAssign'])->name('process-bulk-assign');
-    });
-
-    // Role & Permission Management Routes
-    Route::middleware(['auth', 'role:admin'])->group(function () {
-        // Role Management
-        Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class);
-        
-        // Role Permissions Management
-        Route::get('roles/{role}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'permissions'])
-            ->name('admin.roles.permissions');
-        Route::put('roles/{role}/permissions/sync', [\App\Http\Controllers\Admin\RoleController::class, 'syncPermissions'])
-            ->name('admin.roles.permissions.sync');
-            
-        // Permission Management
-        Route::resource('permissions', \App\Http\Controllers\Admin\PermissionController::class)->except(['show']);
-    });
 
     // History Routes
     Route::resource('history', \App\Http\Controllers\HistoryController::class);
