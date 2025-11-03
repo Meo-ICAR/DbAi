@@ -34,10 +34,7 @@ class DataAnalystAgent extends Agent
 
     protected function chatHistory(): ChatHistoryInterface
     {
-        $connection = config('database.dbai');
-        $config = config("database.connections.{$connection}");
-
-        $pdo = DB::connection()->getPdo();
+        $pdo = DB::connection('dbai')->getPdo();
 
         return new SQLChatHistory(
             thread_id: 'THREAD_ID',
