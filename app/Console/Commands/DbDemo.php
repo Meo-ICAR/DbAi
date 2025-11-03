@@ -42,6 +42,11 @@ class DbDemo extends Command
         }
 
         $agent = new DataAnalystAgent();
+        
+        // For console commands, use a deterministic thread ID based on current date
+        $threadId = 'demo-' . now()->format('Ymd-His');
+        $agent->setThreadId($threadId);
+        $this->info("Using thread ID: " . $threadId);
 
         if ($this->option('interactive')) {
             return $this->interactiveMode($agent);
