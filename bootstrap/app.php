@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use \Inspector\Laravel\Middleware\WebRequestMonitoring;
+use App\Http\Middleware\SetLocale;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,10 +15,15 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withProviders([
         \App\Providers\AuthServiceProvider::class,
     ])
-    ->withMiddleware(function (Middleware $middleware) {
-        // Append the middleware
-        $middleware->appendToGroup('web', WebRequestMonitoring::class)
-            ->appendToGroup('api', WebRequestMonitoring::class);
+->withMiddleware(function (Middleware $middleware) {
+        // Add SetLocale middleware to the web group
+        $middleware->appendToGroup('web', [
+            WebRequestMonitoring::class,
+            SetLocale::class
+        ]);
+
+        // Keep the API middleware as is
+        $middleware->appendToGroup('api', WebRequestMonitoring::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
