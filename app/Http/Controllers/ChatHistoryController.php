@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ChatHistory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class ChatHistoryController extends Controller
@@ -14,7 +14,10 @@ class ChatHistoryController extends Controller
      */
     public function index()
     {
-        $histories = ChatHistory::latest()->paginate(15);
+        $histories = ChatHistory::where('user_id', Auth::id())
+            ->latest()
+            ->paginate(15);
+            
         return view('chat-history.index', compact('histories'));
     }
 
@@ -23,7 +26,9 @@ class ChatHistoryController extends Controller
      */
     public function create()
     {
-        return view('chat-history.create');
+        return view('chat-history.create', [
+            'thread_id' => uniqid('chat_', true)
+        ]);
     }
 
     /**
@@ -43,42 +48,47 @@ class ChatHistoryController extends Controller
         }
 
         $history = ChatHistory::create([
+            'user_id' => Auth::id(),
             'thread_id' => $validated['thread_id'],
             'messages' => $messages,
         ]);
 
         return redirect()
             ->route('chat-history.show', $history)
-            ->with('status', 'Chat history created successfully.');
+            ->with('success', 'Chat history created successfully.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(ChatHistory $history)
+    public function show(ChatHistory $chat_history)
     {
-        return view('chat-history.show', compact('history'));
+        $this->authorize('view', $chat_history);
+        return view('chat-history.show', ['history' => $chat_history]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ChatHistory $history)
+    public function edit(ChatHistory $chat_history)
     {
-        return view('chat-history.edit', compact('history'));
+        $this->authorize('update', $chat_history);
+        return view('chat-history.edit', ['history' => $chat_history]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ChatHistory $history)
+    public function update(Request $request, ChatHistory $chat_history)
     {
+        $this->authorize('update', $chat_history);
+        
         $validated = $request->validate([
             'thread_id' => [
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('dbai.chat_history', 'thread_id')->ignore($history->id)
+                Rule::unique('dbai.chat_history', 'thread_id')->ignore($chat_history->id)
             ],
             'messages' => 'required|json',
         ]);
@@ -89,25 +99,26 @@ class ChatHistoryController extends Controller
             return back()->withErrors(['messages' => 'Invalid JSON format'])->withInput();
         }
 
-        $history->update([
+        $chat_history->update([
             'thread_id' => $validated['thread_id'],
             'messages' => $messages,
         ]);
 
         return redirect()
-            ->route('chat-history.show', $history)
-            ->with('status', 'Chat history updated successfully.');
+            ->route('chat-history.show', $chat_history)
+            ->with('success', 'Chat history updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ChatHistory $history)
+    public function destroy(ChatHistory $chat_history)
     {
-        $history->delete();
-        
+        $this->authorize('delete', $chat_history);
+        $chat_history->delete();
+
         return redirect()
             ->route('chat-history.index')
-            ->with('status', 'Chat history deleted successfully.');
+            ->with('success', 'Chat history deleted successfully');
     }
 }

@@ -26,6 +26,7 @@ class History extends Model
     }
 
     protected $fillable = [
+        'user_id',
         'submission_date',
         'message',
         'sqlstatement',
@@ -41,7 +42,27 @@ class History extends Model
     protected $casts = [
         'submission_date' => 'datetime',
         'slavedashboard' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
+
+    /**
+     * Get the user that owns the history record.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Scope a query to only include records for the current user.
+     */
+    public function scopeForCurrentUser($query)
+    {
+        return $query->when(auth()->check(), function($q) {
+            return $q->where('user_id', auth()->id());
+        });
+    }
 
     /**
      * Get the master query that this history record belongs to.
