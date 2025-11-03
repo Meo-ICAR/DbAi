@@ -9,24 +9,24 @@ use Illuminate\Http\Request;
 use NeuronAI\Chat\Messages\UserMessage;
 use NeuronAI\Chat\Enums\MessageRole;
 use NeuronAI\Chat\Messages\Message;
-
-
+use NeuronAI\Chat\History\ChatHistoryInterface;
+use NeuronAI\Chat\History\SQLChatHistory;
+use Illuminate\Support\Str;
 
 class ChatController extends Controller
 {
     protected $agent;
+    protected $threadId;
 
     public function __construct(DataAnalystAgent $agent)
     {
         $this->agent = $agent;
-
-$response = $agent->chat([
-        new Message(MessageRole::USER, "Hi, my company is called Inspector.dev"),
-        new Message(MessageRole::ASSISTANT, "Hi, how can I assist you today?"),
-        new Message(MessageRole::USER, "What's the name of the company I work for?"),
-
-    ]);
-
+        
+        // Use Laravel's session ID as the thread ID
+        $this->threadId = session()->getId();
+        
+        // Set the thread ID for the agent
+        $this->agent->setThreadId($this->threadId);
     }
 
     public function index()

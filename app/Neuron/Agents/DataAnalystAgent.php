@@ -22,6 +22,7 @@ use NeuronAI\Chat\History\SQLChatHistory;
 
 class DataAnalystAgent extends Agent
 {
+    protected ?string $threadId = null;
      protected function provider(): AIProviderInterface
     {
          return new Gemini(
@@ -32,12 +33,21 @@ class DataAnalystAgent extends Agent
         );
     }
 
+    public function setThreadId(string $threadId): void
+    {
+        $this->threadId = $threadId;
+    }
+
     protected function chatHistory(): ChatHistoryInterface
     {
+        if ($this->threadId === null) {
+            throw new \RuntimeException('Thread ID must be set before initializing chat history');
+        }
+
         $pdo = DB::connection('dbai')->getPdo();
 
         return new SQLChatHistory(
-            thread_id: 'THREAD_ID',
+            thread_id: $this->threadId,
             pdo: $pdo,
             table: 'chat_history',
             contextWindow: 50000

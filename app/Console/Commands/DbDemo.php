@@ -10,6 +10,8 @@ use NeuronAI\Tools\Toolkits\MySQL\MySQLSelectTool;
 use NeuronAI\Tools\PropertyType;
 use NeuronAI\Tools\Tool;
 use NeuronAI\Tools\ToolProperty;
+use NeuronAI\Chat\History\ChatHistoryInterface;
+use NeuronAI\Chat\History\SQLChatHistory;
 
 class DbDemo extends Command
 {
@@ -117,7 +119,7 @@ class DbDemo extends Command
 
         foreach ($testMessages as $index => $message) {
             // Clear previous query log
-            DataAnalystAgent::clearQueryLog();
+         //   DataAnalystAgent::clearQueryLog();
 
             $this->info("Test " . ($index + 1) . "/" . count($testMessages));
             $this->line("User: " . $message);
