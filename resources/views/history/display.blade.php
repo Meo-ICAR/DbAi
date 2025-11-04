@@ -46,20 +46,18 @@
             </div>
             <div class="ml-3">
                 <p class="text-sm text-green-700">
-                    Shareable link created! It will expire 
+                    Shareable link created! It will expire
                     @if(session('expires_at'))
                         {{ \Carbon\Carbon::parse(session('expires_at'))->diffForHumans() }}
                     @else
-                        never
-                    @endif
-                    .
+                                          .
                 </p>
                 <div class="mt-2 flex">
-                    <input type="text" 
-                           value="{{ session('share_url') }}" 
+                    <input type="text"
+                           value="{{ session('share_url') }}"
                            class="flex-1 text-sm border border-gray-300 rounded-l-md px-3 py-1"
                            readonly>
-                    <button onclick="copyToClipboard('{{ session('share_url') }}')" 
+                    <button onclick="copyToClipboard('{{ session('share_url') }}')"
                             class="inline-flex items-center px-3 py-1 border border-l-0 border-gray-300 bg-gray-50 text-gray-700 text-sm rounded-r-md hover:bg-gray-100">
                         <i class="far fa-copy mr-1"></i> Copy
                     </button>
@@ -70,32 +68,32 @@
 @endif
 <div class="container mx-auto p-6 w-full" style="max-width: 95%;" x-data="{
     searchTerm: '',
-    
+
     filterResults() {
         const searchTerm = this.searchTerm.trim().toLowerCase();
         const rows = document.querySelectorAll('#results-table tr[data-searchable]');
         const tfoot = document.querySelector('tfoot');
         let hasVisibleRows = false;
-        
+
         // Show/hide footer based on search
         if (tfoot) {
             tfoot.style.display = searchTerm ? 'none' : '';
         }
-        
+
         // Filter rows
         rows.forEach(row => {
             const rowText = Array.from(row.querySelectorAll('td'))
                 .map(cell => cell.textContent.toLowerCase())
                 .join(' ');
-                
+
             const isVisible = !searchTerm || rowText.includes(searchTerm);
             row.style.display = isVisible ? '' : 'none';
-            
+
             if (isVisible) {
                 hasVisibleRows = true;
             }
         });
-        
+
         // Show/hide no results message
         const noResults = document.getElementById('no-results-message');
         if (noResults) {
@@ -111,26 +109,26 @@
                     @if($history->user_id === auth()->id())
                         <form action="{{ route('history.generate-share-link', $history) }}" method="POST" class="inline">
                             @csrf
-                            <button type="submit" 
+                            <button type="submit"
                                     class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                                 <i class="fas fa-share-alt mr-1"></i> {{ $history->isShareable() ? 'Renew Share' : 'Share' }}
                             </button>
                         </form>
                     @elseif($history->isShareable())
                         <div class="relative">
-                            <input type="text" 
-                                   id="share-link" 
-                                   value="{{ route('history.share', $history->share_token) }}" 
-                                   class="hidden" 
+                            <input type="text"
+                                   id="share-link"
+                                   value="{{ route('history.share', $history->share_token) }}"
+                                   class="hidden"
                                    readonly>
-                            <button onclick="copyShareLink()" 
+                            <button onclick="copyShareLink()"
                                     class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                 <i class="fas fa-copy mr-1"></i> Copy Share Link
                             </button>
                         </div>
                     @endif
                 @endauth
-                
+
                 @if($history->charttype !== 'Table')
                     <a href="{{ url("/history/{$history->id}/chart") }}"
                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
@@ -174,15 +172,15 @@
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-search text-gray-400"></i>
                     </div>
-                    <input type="text" 
-                           x-model="searchTerm" 
-                           class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
+                    <input type="text"
+                           x-model="searchTerm"
+                           class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                            placeholder="Search in all columns..."
                            x-on:input.debounce.300ms="filterResults()"
                            ">
                 </div>
             </div>
-            
+
             <div class="overflow-x-auto text-base">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
@@ -200,7 +198,7 @@
                                     }
                                 @endphp
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    <span class="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded" 
+                                    <span class="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
                                           onclick="window.location.href='{{ request()->fullUrlWithQuery(['sort' => $column, 'direction' => $isSorted && $sortDirection === 'asc' ? 'desc' : 'asc']) }}#results-table'">
                                         {{ $column }}
                                         {!! $sortIcon !!}
@@ -217,7 +215,7 @@
                             </td>
                         </tr>
                         @foreach($results as $index => $row)
-                            <tr class="{{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50' }} hover:bg-blue-100 [&:hover>*]:text-blue-800 transition-colors duration-200" 
+                            <tr class="{{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50' }} hover:bg-blue-100 [&:hover>*]:text-blue-800 transition-colors duration-200"
                                 data-searchable
                                 x-data="{}">
                                 @foreach($row as $column => $value)
@@ -254,13 +252,13 @@
                             <tfoot class="bg-gray-50 border-t-2 border-gray-200">
                                 <tr class="font-bold">
                                     <td class="px-6 py-3 text-sm text-gray-500 row-count" data-total="-1">N. {{ count($results) }}</td>
-                                    @php 
+                                    @php
                                         $first = true;
                                         $colIndex = 0;
                                     @endphp
                                     @foreach($totals as $column => $total)
                                         @if(!$first)
-                                            <td class="px-6 py-3 text-sm {{ $total !== null ? 'text-right font-mono' : 'text-gray-500' }}" 
+                                            <td class="px-6 py-3 text-sm {{ $total !== null ? 'text-right font-mono' : 'text-gray-500' }}"
                                                 data-total="{{ $colIndex }}">
                                                 @if($total !== null)
                                                     {{ is_float($total) ? number_format($total, 2, ',', '.') : number_format($total, 0, ',', '.') }}
@@ -269,7 +267,7 @@
                                                 @endif
                                             </td>
                                         @endif
-                                        @php 
+                                        @php
                                             $first = false;
                                             $colIndex++;
                                         @endphp
@@ -288,7 +286,7 @@
     </div>
 </div>
 
-                
+
     </div>
 </div>
 
@@ -307,7 +305,7 @@
         padding: 0.1em 0.2em;
         border-radius: 0.25em;
     }
-    
+
     /* Search input focus state */
     #searchInput:focus {
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
