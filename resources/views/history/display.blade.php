@@ -38,6 +38,33 @@
 @endphp
 
 @section('content')
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        #printable, #printable * {
+            visibility: visible;
+        }
+        #printable {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            max-width: 100%;
+        }
+        .no-print {
+            display: none !important;
+        }
+        table {
+            width: 100% !important;
+            font-size: 12px;
+        }
+        th, td {
+            padding: 4px 8px !important;
+        }
+    }
+</style>
 <div class="container mx-auto p-6 w-full" style="max-width: 95%;" x-data="{
     searchTerm: '',
 
@@ -73,8 +100,8 @@
         }
     }
 }">
-    <div class="bg-white rounded-lg shadow-lg p-6">
-        <div class="flex justify-between items-center mb-6">
+    <div id="printable" class="bg-white rounded-lg shadow-lg p-6">
+        <div class="flex justify-between items-center mb-6 no-print">
             <h1 class="text-2xl font-bold text-gray-800">{{ $history->message }}</h1>
             <div class="flex items-center space-x-2">
 
@@ -93,6 +120,11 @@
                         <i class="fas fa-file-excel mr-2"></i> Export to Excel
                     </button>
                 </form>
+
+                <button onclick="window.print()"
+                        class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                    <i class="fas fa-print mr-2"></i> Print
+                </button>
 
                 <a href="{{ url('/history') }}"
                    class="text-blue-600 hover:text-blue-800 flex items-center">
