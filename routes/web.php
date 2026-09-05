@@ -60,7 +60,19 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('chat-history', \App\Http\Controllers\ChatHistoryController::class)
         ->parameters(['chat-history' => 'chat_history'])
         ->names('chat-history');
- 
+
+    // Filtri data dinamici per le query salvate
+    Route::get('history/{history}/date-filters', [\App\Http\Controllers\DashboardQueryFilterController::class, 'index'])
+        ->name('history.date-filters');
+    Route::post('history/{history}/date-filters/execute', [\App\Http\Controllers\DashboardQueryFilterController::class, 'execute'])
+        ->name('history.date-filters.execute');
+
+    // Text-to-SQL assistito (generazione query mediche)
+    Route::post('medical-query/ask', [\App\Http\Controllers\MedicalQueryController::class, 'ask'])
+        ->name('medical-query.ask');
+    Route::post('medical-query/execute', [\App\Http\Controllers\MedicalQueryController::class, 'execute'])
+        ->name('medical-query.execute');
+
 });
 
 
